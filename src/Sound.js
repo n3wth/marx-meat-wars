@@ -2,7 +2,7 @@ export class Sound {
     constructor() {
         this.ctx = null;
         this.gain = null;
-        this.masterVolume = 0.3;
+        this.masterVolume = 1.0;
         this.muted = false;
         this.backgroundMusic = null;
         this.currentTrack = 'none';
