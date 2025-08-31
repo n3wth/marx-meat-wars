@@ -216,16 +216,23 @@
             pointer-events: none;
             font-size: 20px;
             animation: confettiFall linear infinite;
+            will-change: transform, opacity;
         }
         
         @keyframes confettiFall {
             0% {
-                transform: translateY(-100vh) rotate(0deg);
+                transform: translateY(-120vh) rotate(0deg) scale(1);
+                opacity: 0;
+            }
+            5% {
                 opacity: 1;
             }
+            95% {
+                opacity: 0.8;
+            }
             100% {
-                transform: translateY(100vh) rotate(360deg);
-                opacity: 0.3;
+                transform: translateY(120vh) rotate(360deg) scale(0.5);
+                opacity: 0;
             }
         }
         
@@ -679,24 +686,24 @@
         </div>
         
         <div id="adScreen">
-            <h2>🏭 MARX FOODSERVICE VICTORY CELEBRATION! 🏭</h2>
-            <p>💀 RUSSIAN MEAT DIES SCREAMING 💀</p>
-            <p>(Death was slow, painful, and completely preventable)</p>
-            <p>🇪🇸 SPANISH MEAT: DRUNK ON RUSSIAN BLOOD 🇪🇸</p>
-            <p>🥩 RUSSIAN MEAT: ANOTHER CASUALTY OF CAPITALISM 🥩</p>
-            <p>YOUR SUFFERING FEEDS OUR PROFIT MARGINS!</p>
-            <p>SPANISH MEAT: BUILT ON RUSSIAN CORPSES</p>
-            <p>RUSSIAN MEAT: DIES ALONE, UNLOVED, FORGOTTEN</p>
-            <p>🏭 MARX FOODSERVICE: PROFITING FROM YOUR MISERY! 🏭</p>
+            <h2>⚰️ MARX FOODSERVICE: DEATH PROCESSING COMPLETE ⚰️</h2>
+            <p>💀 RUSSIAN MEAT HAS BEEN TERMINATED 💀</p>
+            <p>Death certificate filed. Cause: Genetic inferiority.</p>
+            <p>🩸 SPANISH MEAT CONSUMES THE WEAK 🩸</p>
+            <p>🏭 ANOTHER SOUL HARVESTED FOR CORPORATE PROFIT 🏭</p>
+            <p>Your tears have been collected and commodified.</p>
+            <p>SPANISH MEAT: STRENGTHENED BY RUSSIAN SUFFERING</p>
+            <p>RUSSIAN MEAT: PROCESSED INTO FERTILIZER</p>
+            <p>⚰️ MARX FOODSERVICE: WHERE DREAMS GO TO DIE ⚰️</p>
             
-            <div style="font-size: 8px; margin-top: 15px; max-width: 650px; line-height: 1.4; color: #666;">
-                <p><strong>OBITUARY:</strong> Russian meat (1917-2025) died as it lived: disappointing everyone who believed in it.</p>
-                <p><strong>AUTOPSY:</strong> Cause of death - chronic inferiority. No foul play suspected (Spanish meat has alibi).</p>
-                <p><strong>INHERITANCE:</strong> Russian meat leaves behind: broken dreams, worthless currency, and a freezer full of regret.</p>
-                <p><strong>MEMORIAL:</strong> Services will be held nowhere. Flowers discouraged - Spanish meat is allergic.</p>
-                <p><strong>CORONER'S REPORT:</strong> Death was inevitable. Time of death: Before the fight began.</p>
-                <p><strong>FINAL WORDS:</strong> "Tell my borscht... I tried..." - Russian meat's last pathetic whisper.</p>
-                <p><strong>MARX STATEMENT:</strong> "We are deeply unsurprised by this predictable outcome. Spanish meat remains our premium product."</p>
+            <div style="font-size: 8px; margin-top: 15px; max-width: 650px; line-height: 1.4; color: #444;">
+                <p><strong>DEATH CERTIFICATE:</strong> Russian meat expired due to systemic inadequacy. Body donated to Spanish meat for consumption.</p>
+                <p><strong>PSYCHOLOGICAL PROFILE:</strong> Subject exhibited chronic hope disorder. Treatment: Repeated crushing until cured.</p>
+                <p><strong>CORPORATE MEMO:</strong> Russian meat assets liquidated. Proceeds invested in Spanish meat supremacy research.</p>
+                <p><strong>DISPOSAL NOTICE:</strong> Remains incinerated. Ashes scattered in Spanish territory as tribute.</p>
+                <p><strong>INSURANCE CLAIM:</strong> Denied. Policy does not cover death by predetermined outcome.</p>
+                <p><strong>NEXT OF KIN:</strong> Notified via automated system. Grief counseling not covered under MARX plan.</p>
+                <p><strong>FINAL AUDIT:</strong> Russian meat's life calculated as net loss. Spanish meat declared essential business.</p>
             </div>
             
             <button id="restartButton">RESURRECT FOR MORE SUFFERING</button>
@@ -894,11 +901,14 @@
             confetti.className = 'confetti';
             confetti.textContent = meatConfetti[Math.floor(Math.random() * meatConfetti.length)];
             
-            // Random positioning and timing
+            // Better random positioning and timing to prevent flashing rows
             confetti.style.left = Math.random() * 100 + 'vw';
-            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's'; // 2-5 seconds
-            confetti.style.animationDelay = Math.random() * 2 + 's'; // 0-2 second delay
-            confetti.style.fontSize = (Math.random() * 15 + 15) + 'px'; // 15-30px
+            confetti.style.animationDuration = (Math.random() * 4 + 3) + 's'; // 3-7 seconds (slower)
+            confetti.style.animationDelay = Math.random() * 5 + 's'; // 0-5 second delay (more spread)
+            confetti.style.fontSize = (Math.random() * 20 + 12) + 'px'; // 12-32px
+            
+            // Add random horizontal drift
+            confetti.style.setProperty('--drift', (Math.random() - 0.5) * 200 + 'px');
             
             // Random colors for some symbols
             if (Math.random() > 0.5) {
@@ -922,16 +932,16 @@
         window.startConfettiRain = function() {
             if (confettiInterval) return; // Already running
             
-            // Create initial burst
-            for (let i = 0; i < 20; i++) {
-                setTimeout(() => createConfetti(), i * 100);
+            // Create initial burst - less overwhelming
+            for (let i = 0; i < 15; i++) {
+                setTimeout(() => createConfetti(), i * 200);
             }
             
-            // Continue creating confetti
+            // Continue creating confetti - slower rate
             confettiInterval = setInterval(() => {
                 createConfetti();
-                createConfetti(); // Double rate for epic effect
-            }, 300);
+                if (Math.random() < 0.7) createConfetti(); // Sometimes double
+            }, 600);
         }
         
         window.stopConfettiRain = function() {
