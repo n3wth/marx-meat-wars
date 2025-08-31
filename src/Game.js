@@ -231,7 +231,7 @@ export class Game {
                 }
                 if (this.sound) {
                     this.sound.unlock();
-                    this.sound.playMarxJingle(); // Play MARX jingle on start
+                    this.sound.playMarxAudio(); // Play real MARX FOODSERVICE audio!
                 }
             });
         }
@@ -376,7 +376,7 @@ export class Game {
     restart() {
         if (this.adScreen) this.adScreen.style.display = 'none';
         this.start();
-        if (this.sound) this.sound.playMarxJingle();
+        if (this.sound) this.sound.playMarxAudio(); // Play MARX audio on restart too
     }
 
     playerAttack() {
@@ -837,7 +837,7 @@ export class Game {
         if (this.sound) {
             this.sound.stopBackgroundMusic();
             this.sound.playBackgroundMusic('marx_victory');
-            setTimeout(() => this.sound.playMarxJingle(), 1000);
+            setTimeout(() => this.sound.playMarxAudio(), 1000); // Play real MARX audio for victory!
         }
     }
 

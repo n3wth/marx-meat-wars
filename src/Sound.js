@@ -8,6 +8,10 @@ export class Sound {
         this.currentTrack = 'none';
         this.musicGain = null;
         this.isPlayingMusic = false;
+        
+        // Real MARX FOODSERVICE audio
+        this.marxAudio = null;
+        this.loadMarxAudio();
     }
 
     unlock() {
@@ -29,11 +33,47 @@ export class Sound {
     setVolume(v) {
         this.masterVolume = Math.max(0, Math.min(1, v));
         if (this.gain) this.gain.gain.value = this.muted ? 0 : this.masterVolume;
+        if (this.marxAudio) this.marxAudio.volume = this.masterVolume;
     }
 
     setMuted(m) {
         this.muted = !!m;
         if (this.gain) this.gain.gain.value = this.muted ? 0 : this.masterVolume;
+        if (this.marxAudio) this.marxAudio.muted = this.muted;
+    }
+
+    loadMarxAudio() {
+        try {
+            this.marxAudio = new Audio('./resources/marx.mp3');
+            this.marxAudio.preload = 'auto';
+            this.marxAudio.volume = this.masterVolume;
+            this.marxAudio.muted = this.muted;
+            
+            console.log('🎵 MARX FOODSERVICE audio loaded!');
+        } catch (e) {
+            console.warn('Could not load MARX audio:', e);
+        }
+    }
+
+    playMarxAudio() {
+        if (!this.marxAudio || this.muted) return;
+        
+        try {
+            // Reset to beginning and play
+            this.marxAudio.currentTime = 0;
+            this.marxAudio.volume = this.masterVolume;
+            
+            const playPromise = this.marxAudio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('🎵 MARX FOODSERVICE audio playing!');
+                }).catch(error => {
+                    console.warn('MARX audio play failed:', error);
+                });
+            }
+        } catch (e) {
+            console.warn('Could not play MARX audio:', e);
+        }
     }
 
     play(type) {
