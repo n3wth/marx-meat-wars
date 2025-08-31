@@ -870,10 +870,7 @@ export class Game {
         this.russianMeat.draw();
         this.spanishMeat.draw();
         
-        // Draw UI elements
-        if (this.fightText && this.fightTextTimer > 0) {
-            this._drawFightText();
-        }
+        // Fight text now handled by HTML commentary ticker only
         
         if (this.comboText && this.comboTimer > 0) {
             this._drawComboText();
@@ -1034,19 +1031,8 @@ export class Game {
     // _drawMarxBranding() - REMOVED to prevent overlap
     // MARX branding now handled by HTML elements only
 
-    _drawFightText() {
-        // Multi-colored fight text with MARX styling
-        this.ctx.font = 'bold 18px "Press Start 2P"';
-        this.ctx.textAlign = 'center';
-        
-        // Shadow
-        this.ctx.fillStyle = '#8B0000';
-        this.ctx.fillText(this.fightText, this.canvas.width / 2 + 3, 120 + 3);
-        
-        // Main text
-        this.ctx.fillStyle = '#FFD700';
-        this.ctx.fillText(this.fightText, this.canvas.width / 2, 120);
-    }
+    // _drawFightText() - REMOVED to prevent duplicate commentary
+    // Fight text now handled by HTML commentary ticker only
 
     _drawComboText() {
         this.ctx.fillStyle = '#DC143C';
