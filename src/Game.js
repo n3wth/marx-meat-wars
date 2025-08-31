@@ -652,12 +652,26 @@ export class Game {
             this._endRound();
         }
         
-        // Update commentary system
+        // Update commentary system - now uses HTML ticker
         this.commentary.update();
         const newCommentary = this.commentary.getCurrentCommentary();
         if (newCommentary) {
             this.currentCommentary = newCommentary;
             this.commentaryDisplayTimer = 180; // 3 seconds
+            
+            // Update HTML commentary ticker
+            const commentaryTicker = document.getElementById('commentaryTicker');
+            const commentaryText = document.getElementById('commentaryText');
+            
+            if (commentaryTicker && commentaryText) {
+                commentaryTicker.style.display = 'flex';
+                commentaryText.textContent = newCommentary;
+                
+                // Auto-hide after timer
+                setTimeout(() => {
+                    if (commentaryTicker) commentaryTicker.style.display = 'none';
+                }, 3000);
+            }
         }
         
         // Update timers
@@ -850,8 +864,7 @@ export class Game {
             this._drawLightningEffect();
         }
         
-        // Draw MARX FOODSERVICE branding
-        this._drawMarxBranding();
+        // MARX branding now in HTML elements only
         
         // Draw fighters
         this.russianMeat.draw();
@@ -875,10 +888,7 @@ export class Game {
             this._drawAchievements();
         }
         
-        // Always draw commentary but position it carefully
-        if (this.canvas.height > 700) {
-            this._drawCommentary();
-        }
+        // Commentary now handled by HTML ticker - no canvas drawing needed
         
         if (this.screenShake > 0) {
             this.ctx.restore();
@@ -1021,15 +1031,8 @@ export class Game {
         this.ctx.globalAlpha = 1;
     }
 
-    _drawMarxBranding() {
-        // Floating MARX FOODSERVICE logo
-        this.ctx.fillStyle = '#8B0000';
-        this.ctx.font = 'bold 14px "Press Start 2P"';
-        this.ctx.textAlign = 'center';
-        this.ctx.globalAlpha = 0.7 + Math.sin(this.marxTimer * 0.02) * 0.3;
-        this.ctx.fillText('MARX FOODSERVICE PRESENTS', this.canvas.width / 2, 60);
-        this.ctx.globalAlpha = 1;
-    }
+    // _drawMarxBranding() - REMOVED to prevent overlap
+    // MARX branding now handled by HTML elements only
 
     _drawFightText() {
         // Multi-colored fight text with MARX styling
@@ -1125,43 +1128,7 @@ export class Game {
                          this.canvas.width - 20, this.canvas.height - 45);
     }
 
-    _drawCommentary() {
-        if (!this.currentCommentary || this.commentaryDisplayTimer <= 0) return;
-        
-        // Position commentary as a ticker at the very top
-        const commentaryY = 5;
-        const commentaryHeight = 25;
-        const commentaryWidth = this.canvas.width - 20;
-        const commentaryX = 10;
-        
-        // Background
-        this.ctx.fillStyle = 'rgba(255, 215, 0, 0.95)';
-        this.ctx.fillRect(commentaryX, commentaryY, commentaryWidth, commentaryHeight);
-        
-        // Border
-        this.ctx.strokeStyle = '#8B0000';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(commentaryX, commentaryY, commentaryWidth, commentaryHeight);
-        
-        // Commentary text - ticker style
-        this.ctx.fillStyle = '#8B0000';
-        this.ctx.font = 'bold 8px "Press Start 2P"';
-        this.ctx.textAlign = 'left';
-        
-        // Truncate text if too long
-        let displayText = this.currentCommentary;
-        if (displayText.length > 80) {
-            displayText = displayText.substring(0, 77) + '...';
-        }
-        
-        this.ctx.fillText('🎙️ ' + displayText, commentaryX + 5, commentaryY + 16);
-        
-        // LIVE indicator
-        this.ctx.fillStyle = '#DC143C';
-        this.ctx.font = 'bold 6px "Press Start 2P"';
-        this.ctx.textAlign = 'right';
-        this.ctx.fillText('LIVE', commentaryX + commentaryWidth - 5, commentaryY + 10);
-    }
+    // Commentary now handled by HTML ticker - method removed
 
     _drawAchievements() {
         // Only show on larger screens to avoid overlap
