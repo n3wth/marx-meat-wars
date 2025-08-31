@@ -101,8 +101,13 @@ export class Game {
         this.setupMarketplace();
         
         // Initialize responsive layout system
-        this.layoutManager = new LayoutManager(this.canvas);
-        this.visibleElements = this.layoutManager.getVisibleElements();
+        try {
+            this.layoutManager = new LayoutManager(this.canvas);
+            this.visibleElements = this.layoutManager.getVisibleElements();
+        } catch (e) {
+            console.warn('Layout manager failed, using fallback:', e);
+            this.layoutManager = null;
+        }
 
         // Rigged damage values (Russian always does less, takes more)
         this.baseRussianDamage = 8; // Pathetically low
@@ -443,31 +448,18 @@ export class Game {
     }
 
     positionFighters() {
-        // Update layout for current screen size
-        if (this.layoutManager.updateLayout()) {
-            this.visibleElements = this.layoutManager.getVisibleElements();
-        }
+        // Simple fallback positioning
+        const midY = Math.max(150, Math.floor(this.canvas.height * 0.5));
+        const margin = 100;
+        const gap = Math.max(250, Math.floor(this.canvas.width * 0.3));
+        const totalWidth = this.russianMeat.width + gap + this.spanishMeat.width;
+        let left = Math.max(margin, Math.floor((this.canvas.width - totalWidth) / 2));
         
-        const safeArea = this.layoutManager.getSafeArea();
-        const spacing = this.layoutManager.getSpacing();
-        
-        // Position fighters in safe area
-        const fighterWidth = this.layoutManager.isMobile() ? 60 : 90;
-        const gap = this.layoutManager.isMobile() ? 100 : Math.max(200, safeArea.width * 0.3);
-        
-        // Update fighter sizes for mobile
-        this.russianMeat.width = fighterWidth;
-        this.russianMeat.height = fighterWidth;
-        this.spanishMeat.width = fighterWidth;
-        this.spanishMeat.height = fighterWidth;
-        
-        const totalWidth = fighterWidth * 2 + gap;
-        const startX = safeArea.x + Math.max(0, (safeArea.width - totalWidth) / 2);
-        
-        this.russianMeat.x = startX;
-        this.russianMeat.y = safeArea.y + (safeArea.height - fighterWidth) / 2;
-        this.spanishMeat.x = startX + fighterWidth + gap;
-        this.spanishMeat.y = safeArea.y + (safeArea.height - fighterWidth) / 2;
+        this.russianMeat.x = left;
+        this.russianMeat.y = midY - Math.floor(this.russianMeat.height / 2);
+        this.spanishMeat.x = Math.min(this.canvas.width - margin - this.spanishMeat.width, 
+                                     left + this.russianMeat.width + gap);
+        this.spanishMeat.y = midY - Math.floor(this.spanishMeat.height / 2);
     }
 
     checkCollision(attacker, defender) {
@@ -1017,17 +1009,16 @@ export class Game {
     }
 
     _drawHealthBars() {
-        if (!this.layoutManager.shouldShow('healthBars', 'essential')) return;
+        // Fallback if layout manager fails
+        if (this.layoutManager && !this.layoutManager.shouldShow('healthBars', 'essential')) return;
         
-        const pos = this.layoutManager.getPosition('healthBars');
-        const barWidth = this.layoutManager.isMobile() ? 
-            Math.min(200, (this.canvas.width - 40) / 2) : 250;
-        const barHeight = this.layoutManager.isMobile() ? 15 : 20;
-        const fontSize = this.layoutManager.getFontSize(12);
+        const barWidth = 250;
+        const barHeight = 20;
+        const y = 40;
         
         // Russian health bar (left side, always looks bad)
         this.ctx.fillStyle = '#4B0000';
-        this.ctx.fillRect(pos.x, pos.y, barWidth, barHeight);
+        this.ctx.fillRect(50, y, barWidth, barHeight);
         
         const russianHealthPercent = this.russianMeat.hp / this.russianMeat.maxHp;
         const russianHealthColor = russianHealthPercent > 0.6 ? '#8B0000' : 
@@ -1083,20 +1074,22 @@ export class Game {
     }
 
     _drawCommentary() {
-        if (!this.layoutManager.shouldShow('commentary', 'important')) return;
+        if (this.layoutManager && !this.layoutManager.shouldShow('commentary', 'important')) return;
         if (!this.currentCommentary || this.commentaryDisplayTimer <= 0) return;
         
-        const pos = this.layoutManager.getPosition('commentary');
-        const fontSize = this.layoutManager.getFontSize(10);
+        // Fallback positioning
+        const commentaryY = this.canvas.height - 150;
+        const commentaryHeight = 50;
+        const padding = 15;
             
         // Background with MARX FOODSERVICE styling
         this.ctx.fillStyle = 'rgba(255, 215, 0, 0.95)';
-        this.ctx.fillRect(pos.x, pos.y, pos.width, pos.height);
+        this.ctx.fillRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
             
         // Border
         this.ctx.strokeStyle = '#8B0000';
         this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(pos.x, pos.y, pos.width, pos.height);
+        this.ctx.strokeRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
             
             // Commentary text
             this.ctx.fillStyle = '#8B0000';
@@ -1144,15 +1137,12 @@ export class Game {
     }
 
     _drawAchievements() {
-        if (!this.layoutManager.shouldShow('achievements', 'nice_to_have')) return;
+        if (this.layoutManager && !this.layoutManager.shouldShow('achievements', 'nice_to_have')) return;
         
         const recentUnlocks = this.achievements.getRecentUnlocks();
         if (recentUnlocks.length > 0) {
-            const pos = this.layoutManager.getPosition('achievements');
-            const fontSize = this.layoutManager.getFontSize(8);
-            
             recentUnlocks.forEach((achievement, index) => {
-                const y = pos.y + (index * 55); // Responsive spacing
+                const y = 200 + (index * 55); // Simple positioning
                 const timeSinceUnlock = Date.now() - achievement.timestamp;
                 const fadeTime = 5000; // 5 seconds
                 
