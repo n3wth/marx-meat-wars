@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MINIMAL MARX TEST</title>
+    <style>
+        body { margin: 0; background: #FFD700; font-family: monospace; }
+        #log { position: fixed; top: 10px; left: 10px; background: white; padding: 10px; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <div id="log">🔧 Loading...</div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <script type="module">
+        const log = document.getElementById('log');
+        
+        function addLog(msg) {
+            log.innerHTML += '<br>' + msg;
+            console.log(msg);
+        }
+        
+        try {
+            addLog('✅ Starting minimal test...');
+            
+            // Test 1: Import MeatFighter
+            const { MeatFighter } = await import('./src/MeatFighter.js');
+            addLog('✅ MeatFighter imported');
+            
+            // Test 2: Import Sound
+            const { Sound } = await import('./src/Sound.js');
+            addLog('✅ Sound imported');
+            
+            // Test 3: Import Commentary
+            const { Commentary } = await import('./src/Commentary.js');
+            addLog('✅ Commentary imported');
+            
+            // Test 4: Import Achievements
+            const { Achievements } = await import('./src/Achievements.js');
+            addLog('✅ Achievements imported');
+            
+            // Test 5: Import Marketplace
+            const { Marketplace } = await import('./src/Marketplace.js');
+            addLog('✅ Marketplace imported');
+            
+            // Test 6: Try to create basic objects
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            
+            const russian = new MeatFighter(100, 100, true, ctx);
+            addLog('✅ Russian meat created');
+            
+            const sound = new Sound();
+            addLog('✅ Sound created');
+            
+            const commentary = new Commentary();
+            addLog('✅ Commentary created');
+            
+            const achievements = new Achievements();
+            addLog('✅ Achievements created');
+            
+            const marketplace = new Marketplace();
+            addLog('✅ Marketplace created');
+            
+            // Test 7: Try basic drawing
+            russian.draw();
+            addLog('✅ Basic drawing works');
+            
+            addLog('🎉 ALL BASIC COMPONENTS WORK!');
+            addLog('Issue must be in Game.js constructor...');
+            
+        } catch (error) {
+            addLog(`❌ ERROR: ${error.message}`);
+            addLog(`❌ STACK: ${error.stack}`);
+        }
+    </script>
+</body>
+</html>

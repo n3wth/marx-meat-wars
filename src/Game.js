@@ -1090,50 +1090,49 @@ export class Game {
         this.ctx.strokeStyle = '#8B0000';
         this.ctx.lineWidth = 2;
         this.ctx.strokeRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
+        
+        // Commentary text
+        this.ctx.fillStyle = '#8B0000';
+        this.ctx.font = 'bold 12px "Press Start 2P"';
+        this.ctx.textAlign = 'left';
+        
+        // Word wrap the commentary
+        const maxWidth = this.canvas.width - (padding * 4);
+        const words = this.currentCommentary.split(' ');
+        let line = '';
+        let y = commentaryY + 25;
+        
+        for (let i = 0; i < words.length; i++) {
+            const testLine = line + words[i] + ' ';
+            const metrics = this.ctx.measureText(testLine);
+            const testWidth = metrics.width;
             
-            // Commentary text
-            this.ctx.fillStyle = '#8B0000';
-            this.ctx.font = 'bold 12px "Press Start 2P"';
-            this.ctx.textAlign = 'left';
-            
-            // Word wrap the commentary
-            const maxWidth = this.canvas.width - (padding * 4);
-            const words = this.currentCommentary.split(' ');
-            let line = '';
-            let y = commentaryY + 25;
-            
-            for (let i = 0; i < words.length; i++) {
-                const testLine = line + words[i] + ' ';
-                const metrics = this.ctx.measureText(testLine);
-                const testWidth = metrics.width;
-                
-                if (testWidth > maxWidth && i > 0) {
-                    this.ctx.fillText(line, padding * 2, y);
-                    line = words[i] + ' ';
-                    y += 16;
-                } else {
-                    line = testLine;
-                }
+            if (testWidth > maxWidth && i > 0) {
+                this.ctx.fillText(line, padding * 2, y);
+                line = words[i] + ' ';
+                y += 16;
+            } else {
+                line = testLine;
             }
-            this.ctx.fillText(line, padding * 2, y);
-            
-            // Commentary fade effect
-            if (this.commentaryDisplayTimer < 30) {
-                this.ctx.fillStyle = `rgba(255, 215, 0, ${this.commentaryDisplayTimer / 30})`;
-                this.ctx.fillRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
-            }
-            
-            // Microphone icon
-            this.ctx.fillStyle = '#8B0000';
-            this.ctx.font = '16px Arial';
-            this.ctx.fillText('🎙️', this.canvas.width - 50, commentaryY + 20);
-            
-            // "LIVE" indicator
-            this.ctx.fillStyle = '#DC143C';
-            this.ctx.font = 'bold 10px "Press Start 2P"';
-            this.ctx.textAlign = 'right';
-            this.ctx.fillText('LIVE', this.canvas.width - 25, commentaryY + 35);
         }
+        this.ctx.fillText(line, padding * 2, y);
+        
+        // Commentary fade effect
+        if (this.commentaryDisplayTimer < 30) {
+            this.ctx.fillStyle = `rgba(255, 215, 0, ${this.commentaryDisplayTimer / 30})`;
+            this.ctx.fillRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
+        }
+        
+        // Microphone icon
+        this.ctx.fillStyle = '#8B0000';
+        this.ctx.font = '16px Arial';
+        this.ctx.fillText('🎙️', this.canvas.width - 50, commentaryY + 20);
+        
+        // "LIVE" indicator
+        this.ctx.fillStyle = '#DC143C';
+        this.ctx.font = 'bold 10px "Press Start 2P"';
+        this.ctx.textAlign = 'right';
+        this.ctx.fillText('LIVE', this.canvas.width - 25, commentaryY + 35);
     }
 
     _drawAchievements() {

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEBUG: MARX MEAT WARS</title>
+    <style>
+        body { margin: 0; padding: 20px; background: #FFD700; font-family: monospace; }
+        #debug { background: white; padding: 10px; margin-bottom: 10px; }
+        canvas { border: 2px solid #8B0000; }
+    </style>
+</head>
+<body>
+    <div id="debug">
+        <h3>🔧 MARX MEAT WARS - DEBUG MODE</h3>
+        <div id="errors"></div>
+        <button onclick="testGame()">TEST BASIC GAME</button>
+    </div>
+    
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    
+    <script>
+        // Catch all errors
+        window.addEventListener('error', (e) => {
+            const errorDiv = document.getElementById('errors');
+            errorDiv.innerHTML += `<div style="color: red; margin: 5px 0;">❌ ${e.message} at ${e.filename}:${e.lineno}</div>`;
+        });
+        
+        function testGame() {
+            try {
+                console.log('🎮 Testing basic game functionality...');
+                
+                // Test 1: Check if modules load
+                import('./src/MeatFighter.js').then(module => {
+                    console.log('✅ MeatFighter module loaded');
+                    
+                    // Test 2: Check if we can create fighters
+                    const canvas = document.getElementById('gameCanvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    const russian = new module.MeatFighter(100, 100, true, ctx);
+                    const spanish = new module.MeatFighter(300, 100, false, ctx);
+                    
+                    console.log('✅ Fighters created successfully');
+                    
+                    // Test 3: Check if we can draw them
+                    russian.draw();
+                    spanish.draw();
+                    
+                    console.log('✅ Basic drawing works');
+                    
+                    document.getElementById('errors').innerHTML += '<div style="color: green;">✅ Basic game components working!</div>';
+                    
+                }).catch(error => {
+                    console.error('❌ Module loading failed:', error);
+                    document.getElementById('errors').innerHTML += `<div style="color: red;">❌ Module error: ${error.message}</div>`;
+                });
+                
+            } catch (error) {
+                console.error('❌ Test failed:', error);
+                document.getElementById('errors').innerHTML += `<div style="color: red;">❌ Test error: ${error.message}</div>`;
+            }
+        }
+        
+        // Test module loading on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(testGame, 1000);
+        });
+    </script>
+</body>
+</html>
