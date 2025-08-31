@@ -246,8 +246,14 @@ export class Game {
                     e.preventDefault();
                     this.playerAttack();
                 }
-                if (e.code === 'ArrowLeft') { this.movePlayer(-1); }
-                if (e.code === 'ArrowRight') { this.movePlayer(1); }
+                if (e.code === 'ArrowLeft') { 
+                    this.movePlayer(-1); 
+                    this.addSillyFeedback('left');
+                }
+                if (e.code === 'ArrowRight') { 
+                    this.movePlayer(1); 
+                    this.addSillyFeedback('right');
+                }
             }
         });
         
@@ -375,6 +381,12 @@ export class Game {
 
     restart() {
         if (this.adScreen) this.adScreen.style.display = 'none';
+        
+        // Stop confetti rain
+        if (window.stopConfettiRain) {
+            window.stopConfettiRain();
+        }
+        
         this.start();
         // No MARX audio on restart - save it for the victory moment
     }
@@ -403,6 +415,9 @@ export class Game {
             // Decrease Russian morale with each attack
             this.russianMorale = Math.max(10, this.russianMorale - 2);
             this.defeatismLevel += 0.1;
+            
+            // Add silly feedback for attacks
+            this.addSillyFeedback('attack');
             
             // Random crazy effects when desperate
             if (this.russianMorale < 20 && Math.random() < 0.3) {
@@ -833,6 +848,13 @@ export class Game {
         if (this.sound) {
             this.sound.playMarxAudio(); // "MARX FOODSERVICE!" shout for the victory celebration
         }
+        
+        // Start epic confetti rain
+        setTimeout(() => {
+            if (window.startConfettiRain) {
+                window.startConfettiRain();
+            }
+        }, 500);
     }
 
     draw() {
@@ -1090,22 +1112,32 @@ export class Game {
     }
 
     _drawRiggingIndicators() {
-        // Simple, compact rigging display - safe positioning
-        this.ctx.fillStyle = 'rgba(220, 20, 60, 0.9)';
-        this.ctx.font = 'bold 8px "Press Start 2P"';
-        this.ctx.textAlign = 'left';
+        // HUGE, IN-YOUR-FACE absurd numbers - make the rigging obvious and hilarious
         
-        // Left side stats - positioned safely
-        this.ctx.fillText(`RIGGING: ${Math.floor(this.riggedFactor * 100)}%`, 20, this.canvas.height - 60);
-        this.ctx.fillText(`RUS MORALE: ${Math.floor(this.russianMorale)}%`, 20, this.canvas.height - 45);
-        this.ctx.fillText(`SPA CONFIDENCE: ${Math.floor(this.spanishMorale)}%`, 20, this.canvas.height - 30);
+        // MASSIVE rigging percentage in center
+        const riggingPercent = Math.floor(this.riggedFactor * 100);
+        this.ctx.fillStyle = '#DC143C';
+        this.ctx.font = 'bold 48px "Press Start 2P"';
+        this.ctx.textAlign = 'center';
+        this.ctx.strokeStyle = '#FFFFFF';
+        this.ctx.lineWidth = 3;
+        this.ctx.strokeText(`RIGGED: ${riggingPercent}%`, this.canvas.width / 2, this.canvas.height - 100);
+        this.ctx.fillText(`RIGGED: ${riggingPercent}%`, this.canvas.width / 2, this.canvas.height - 100);
         
-        // Right side prediction - positioned safely  
-        this.ctx.textAlign = 'right';
+        // ABSURD victory probability that goes way beyond 100%
+        const absurdProbability = Math.floor(80 + this.riggedFactor * 50 + this.spanishMorale * 2);
         this.ctx.fillStyle = '#FFD700';
-        this.ctx.fillText('MARX PREDICTION: SPAIN WINS', this.canvas.width - 20, this.canvas.height - 60);
-        this.ctx.fillText(`VICTORY PROB: ${Math.min(99, Math.floor(80 + this.riggedFactor * 15))}%`, 
-                         this.canvas.width - 20, this.canvas.height - 45);
+        this.ctx.font = 'bold 24px "Press Start 2P"';
+        this.ctx.strokeStyle = '#8B0000';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeText(`SPAIN WIN PROB: ${absurdProbability}%`, this.canvas.width / 2, this.canvas.height - 50);
+        this.ctx.fillText(`SPAIN WIN PROB: ${absurdProbability}%`, this.canvas.width / 2, this.canvas.height - 50);
+        
+        // RIDICULOUS Russian failure probability
+        const russianFailProb = Math.max(100, Math.floor(100 + this.defeatismLevel * 50 + (100 - this.russianMorale)));
+        this.ctx.fillStyle = '#8B0000';
+        this.ctx.font = 'bold 16px "Press Start 2P"';
+        this.ctx.fillText(`RUSSIAN FAILURE PROB: ${russianFailProb}%`, this.canvas.width / 2, this.canvas.height - 20);
     }
 
     // Commentary now handled by HTML ticker - method removed
@@ -1178,6 +1210,33 @@ export class Game {
             this.ctx.fillText(`ACH: ${progress.unlocked}/${progress.total}`, this.canvas.width - 175, 135);
             this.ctx.fillText(`FAILURE SCORE: ${progress.score}`, this.canvas.width - 175, 145);
             this.ctx.fillText(`COMPLETION: ${progress.percentage}%`, this.canvas.width - 175, 155);
+        }
+    }
+
+    addSillyFeedback(action) {
+        const sillyAccessories = ['🕶️', '🎩', '👒', '🧢', '👑', '🎭', '🤠', '🧙‍♂️'];
+        const sillyActions = {
+            'left': ['FANCY LEFT!', 'STYLISH RETREAT!', 'FABULOUS ESCAPE!', 'DIVA DODGE!'],
+            'right': ['GLAMOROUS RIGHT!', 'SASSY ADVANCE!', 'FIERCE FORWARD!', 'QUEEN MARCH!'],
+            'attack': ['FIERCE STRIKE!', 'DIVA ATTACK!', 'SASSY SWING!', 'FABULOUS FURY!']
+        };
+        
+        // Random accessory appears briefly
+        if (Math.random() < 0.3) {
+            const accessory = sillyAccessories[Math.floor(Math.random() * sillyAccessories.length)];
+            this.russianMeat.addTextBubble(accessory, '#FF69B4');
+        }
+        
+        // Silly action text
+        if (Math.random() < 0.2) {
+            const actionText = sillyActions[action] || ['FABULOUS!'];
+            this.russianMeat.addTextBubble(actionText[Math.floor(Math.random() * actionText.length)], '#FFD700');
+        }
+        
+        // Random sparkle effects
+        if (Math.random() < 0.4) {
+            this.russianMeat.addParticle(this.russianMeat.x + this.russianMeat.width/2, 
+                                       this.russianMeat.y + this.russianMeat.height/2, '#FFFFFF');
         }
     }
 

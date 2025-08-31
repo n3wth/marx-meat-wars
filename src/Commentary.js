@@ -45,7 +45,17 @@ export class Commentary {
             "BEEF: Even my grandmother's meatloaf fights better!",
             "CHUCK: That wasn't an attack, that was a gentle caress!",
             "SERGEI: Mother Russia weeps...",
-            "BEEF: Russian meat's power level: STILL UNDER 9!"
+            "BEEF: Russian meat's power level: STILL UNDER 9!",
+            "CHUCK: Cold War called - they want their meat back!",
+            "BEEF: This attack brought to you by Soviet inefficiency!",
+            "SERGEI: In Soviet Russia, meat punches you... poorly!",
+            "CHUCK: That's what we call 'Kremlin-level incompetence'!",
+            "BEEF: MARX QUALITY CONTROL: Russian meat fails inspection!",
+            "CHUCK: Brezhnev would be disappointed in this performance!",
+            "BEEF: This meat has been pre-tenderized by communism!",
+            "SERGEI: Even gulag food fights better than this...",
+            "CHUCK: Russian meat: Now with 50% more existential dread!",
+            "BEEF: MARX FOODSERVICE: Making capitalism delicious since today!"
         ];
         
         this.russianMissComments = [

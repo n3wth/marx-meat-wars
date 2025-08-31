@@ -208,6 +208,25 @@
             color: #8B0000;
             text-align: center;
             z-index: 300;
+            overflow: hidden;
+        }
+        
+        .confetti {
+            position: absolute;
+            pointer-events: none;
+            font-size: 20px;
+            animation: confettiFall linear infinite;
+        }
+        
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(-100vh) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.3;
+            }
         }
         
         #adScreen h2 {
@@ -745,6 +764,92 @@
                 100% { opacity: 0; transform: translateY(-50px) scale(0.5); }
             }
         `;
+        
+        // CONFETTI RAIN SYSTEM
+        function createConfetti() {
+            const confettiSymbols = [
+                '🥩', '💄', '👁️', '💋', '🏭', // Meat, eyelashes, MARX
+                '🇪🇸', '🇷🇺', '⚔️', '💰', '🏆', // Flags, battle, coins, achievements
+                '✨', '🌟', '💎', '👑', '🎉', // Sparkles and celebration
+                'M', 'A', 'R', 'X', // MARX letters
+                '☭', '🌹', '🔥', '💃', '🎭', // Cultural symbols
+                '🦵', '👠', '💅', '😭', '🤡' // Cosmetic items and emotions
+            ];
+            
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.textContent = confettiSymbols[Math.floor(Math.random() * confettiSymbols.length)];
+            
+            // Random positioning and timing
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's'; // 2-5 seconds
+            confetti.style.animationDelay = Math.random() * 2 + 's'; // 0-2 second delay
+            confetti.style.fontSize = (Math.random() * 15 + 15) + 'px'; // 15-30px
+            
+            // Random colors for some symbols
+            if (Math.random() > 0.5) {
+                const colors = ['#FFD700', '#FF69B4', '#DC143C', '#8B0000', '#00FF00', '#FF1493'];
+                confetti.style.color = colors[Math.floor(Math.random() * colors.length)];
+            }
+            
+            document.getElementById('adScreen').appendChild(confetti);
+            
+            // Remove after animation
+            setTimeout(() => {
+                if (confetti.parentNode) {
+                    confetti.parentNode.removeChild(confetti);
+                }
+            }, 7000);
+        }
+        
+        // Start confetti when ad screen shows
+        let confettiInterval = null;
+        
+        window.startConfettiRain = function() {
+            if (confettiInterval) return; // Already running
+            
+            // Create initial burst
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => createConfetti(), i * 100);
+            }
+            
+            // Continue creating confetti
+            confettiInterval = setInterval(() => {
+                createConfetti();
+                createConfetti(); // Double rate for epic effect
+            }, 300);
+        }
+        
+        window.stopConfettiRain = function() {
+            if (confettiInterval) {
+                clearInterval(confettiInterval);
+                confettiInterval = null;
+            }
+            
+            // Clean up existing confetti
+            const existingConfetti = document.querySelectorAll('.confetti');
+            existingConfetti.forEach(c => c.remove());
+        }
+        
+        // Hook into game events
+        const originalShowAd = window.__game && window.__game._showAd;
+        if (window.__game) {
+            const originalShowAdMethod = window.__game._showAd;
+            window.__game._showAd = function() {
+                originalShowAdMethod.call(this);
+                setTimeout(() => startConfettiRain(), 500); // Start confetti after ad appears
+            };
+        }
+        
+        // Also start confetti when restart button is visible
+        document.addEventListener('DOMContentLoaded', () => {
+            const restartButton = document.getElementById('restartButton');
+            if (restartButton) {
+                restartButton.addEventListener('click', () => {
+                    stopConfettiRain(); // Stop confetti when restarting
+                });
+            }
+        });
     </script>
 </body>
 </html>
