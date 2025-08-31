@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects for Marx Meat Wars
+# Ensure all routes serve the main game
+/* /index.html 200
