@@ -73,6 +73,7 @@
             border: 4px solid #8B0000;
             z-index: 100;
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: uiPulse 3s ease-in-out infinite alternate, uiFloat 4s ease-in-out infinite;
         }
         
         #ui div {
@@ -92,8 +93,15 @@
             font-size: 10px;
             text-align: center;
             z-index: 100;
-            animation: marxGlow 3s ease-in-out infinite alternate;
+            animation: marxGlow 3s ease-in-out infinite alternate, marxBounce 2s ease-in-out infinite, marxRotate 8s linear infinite;
             box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .marx-logo:hover {
+            animation-duration: 0.5s, 0.5s, 2s;
+            transform: scale(1.1);
         }
         
         @keyframes marxGlow {
@@ -328,10 +336,71 @@
             100% { filter: drop-shadow(0 0 20px #DC143C); }
         }
         
+        @keyframes uiPulse {
+            0% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.5); }
+            100% { box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+        }
+        
+        @keyframes uiFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        
+        @keyframes marxRotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes textShimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        @keyframes iconBounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-5px) rotate(-5deg); }
+            75% { transform: translateY(-2px) rotate(5deg); }
+        }
+        
+        @keyframes backgroundPulse {
+            0% { background-size: 100% 100%; }
+            50% { background-size: 110% 110%; }
+            100% { background-size: 100% 100%; }
+        }
+        
         .defeat-text {
             color: #DC143C;
             font-weight: bold;
             text-shadow: 2px 2px 0px #8B0000;
+            animation: textShimmer 2s linear infinite;
+            background: linear-gradient(90deg, #DC143C, #FF6B6B, #DC143C, #FF6B6B, #DC143C);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Add micro-animations to various elements */
+        .meat-icon {
+            animation: iconBounce 3s ease-in-out infinite;
+        }
+        
+        #titleScreen h1 {
+            animation: titleGlow 3s ease-in-out infinite alternate, textShimmer 4s linear infinite;
+        }
+        
+        .controls button {
+            transition: all 0.2s ease;
+            animation: buttonPulse 3s ease-in-out infinite;
+        }
+        
+        .controls button:hover {
+            transform: scale(1.1) translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        body {
+            animation: backgroundPulse 10s ease-in-out infinite;
         }
     </style>
 </head>
@@ -339,10 +408,11 @@
     <div id="gameContainer">
         <canvas id="gameCanvas" width="1920" height="1080"></canvas>
         
-        <div class="marx-logo">
+        <div class="marx-logo" onclick="easterEgg()">
             <div>🏭 MARX</div>
             <div>FOODSERVICE</div>
             <div style="font-size: 8px; margin-top: 4px;">PREMIUM MEATS</div>
+            <div style="font-size: 6px; margin-top: 2px; opacity: 0.7;">CLICK ME!</div>
         </div>
         
         <div id="ui">
@@ -394,5 +464,120 @@
     </div>
     
     <script type="module" src="./src/main.js"></script>
+    
+    <script>
+        // Easter egg function
+        let easterEggClicks = 0;
+        function easterEgg() {
+            easterEggClicks++;
+            const logo = document.querySelector('.marx-logo');
+            
+            if (easterEggClicks === 1) {
+                logo.style.animation = 'marxGlow 0.2s ease-in-out infinite alternate, marxBounce 0.3s ease-in-out infinite, marxRotate 1s linear infinite';
+                setTimeout(() => {
+                    logo.innerHTML = `
+                        <div>🎉 SECRET!</div>
+                        <div>MARX MODE</div>
+                        <div style="font-size: 8px; margin-top: 4px;">ACTIVATED!</div>
+                        <div style="font-size: 6px; margin-top: 2px; opacity: 0.7;">CLICK AGAIN!</div>
+                    `;
+                }, 500);
+            } else if (easterEggClicks === 3) {
+                logo.style.animation = 'marxGlow 0.1s ease-in-out infinite alternate, marxBounce 0.1s ease-in-out infinite, marxRotate 0.5s linear infinite';
+                document.body.style.filter = 'hue-rotate(180deg) saturate(200%)';
+                setTimeout(() => {
+                    logo.innerHTML = `
+                        <div>🌈 RAINBOW</div>
+                        <div>MARX!</div>
+                        <div style="font-size: 8px; margin-top: 4px;">FABULOUS!</div>
+                        <div style="font-size: 6px; margin-top: 2px; opacity: 0.7;">ONE MORE!</div>
+                    `;
+                }, 300);
+            } else if (easterEggClicks === 5) {
+                logo.style.animation = 'marxGlow 0.05s ease-in-out infinite alternate, marxBounce 0.05s ease-in-out infinite, marxRotate 0.2s linear infinite';
+                document.body.style.filter = 'hue-rotate(360deg) saturate(300%) contrast(200%)';
+                document.body.style.animation = 'shake 0.1s infinite';
+                setTimeout(() => {
+                    logo.innerHTML = `
+                        <div>💥 ULTIMATE</div>
+                        <div>MARX POWER!</div>
+                        <div style="font-size: 8px; margin-top: 4px;">OVER 9000!</div>
+                        <div style="font-size: 6px; margin-top: 2px; opacity: 0.7;">MAXIMUM!</div>
+                    `;
+                }, 200);
+                
+                // Add screen flash effect
+                const flash = document.createElement('div');
+                flash.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+                    background: white; z-index: 9999; opacity: 0;
+                    animation: flash 0.1s ease-in-out 3;
+                `;
+                document.body.appendChild(flash);
+                setTimeout(() => flash.remove(), 500);
+                
+                // Play crazy sound if game is loaded
+                if (window.__game && window.__game.sound) {
+                    window.__game.sound.playMarxJingle();
+                    if (window.__game.russianMeat) {
+                        window.__game.russianMeat.activateRainbow();
+                        window.__game.russianMeat.activateSpinning();
+                        window.__game.russianMeat.addTextBubble('MARX POWER!', '#FFD700');
+                    }
+                    if (window.__game.spanishMeat) {
+                        window.__game.spanishMeat.activateRainbow();
+                        window.__game.spanishMeat.activatePulsing();
+                        window.__game.spanishMeat.addTextBubble('¡INCREÍBLE!', '#FFD700');
+                    }
+                }
+            }
+        }
+        
+        // Add CSS for flash animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes flash {
+                0% { opacity: 0; }
+                50% { opacity: 0.8; }
+                100% { opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Add floating MARX letters on mouse move
+        let lastMouseMove = 0;
+        document.addEventListener('mousemove', (e) => {
+            const now = Date.now();
+            if (now - lastMouseMove > 100) { // Throttle
+                lastMouseMove = now;
+                
+                if (Math.random() < 0.1) { // 10% chance
+                    const letter = document.createElement('div');
+                    letter.textContent = 'MARX'[Math.floor(Math.random() * 4)];
+                    letter.style.cssText = `
+                        position: fixed; 
+                        left: ${e.clientX}px; 
+                        top: ${e.clientY}px;
+                        font-family: 'Press Start 2P', cursive;
+                        font-size: 12px;
+                        color: rgba(255, 215, 0, 0.7);
+                        pointer-events: none;
+                        z-index: 1000;
+                        animation: fadeUpAndOut 2s ease-out forwards;
+                    `;
+                    document.body.appendChild(letter);
+                    setTimeout(() => letter.remove(), 2000);
+                }
+            }
+        });
+        
+        // Add fadeUpAndOut animation
+        style.textContent += `
+            @keyframes fadeUpAndOut {
+                0% { opacity: 0.7; transform: translateY(0) scale(1); }
+                100% { opacity: 0; transform: translateY(-50px) scale(0.5); }
+            }
+        `;
+    </script>
 </body>
 </html>

@@ -58,10 +58,26 @@ export class MeatFighter {
         if (isRussian) {
             this.vodkaDroplets = this.generateVodkaDroplets();
             this.communistSymbols = this.generateCommunistSymbols();
+            this.snowflakes = this.generateSnowflakes();
+            this.tears = [];
         } else {
             this.oliveOil = this.generateOliveOil();
             this.spanishSpices = this.generateSpanishSpices();
+            this.flamencoFlames = this.generateFlamencoFlames();
+            this.victoryAura = [];
         }
+        
+        // Crazy visual effects
+        this.crazyEffects = {
+            rainbow: false,
+            spinning: false,
+            pulsing: false,
+            glowing: false,
+            trailing: [],
+            explosions: [],
+            textBubbles: [],
+            powerLevel: this.isRussian ? 1 : 9001
+        };
     }
 
     generateMeatTexture() {
@@ -239,17 +255,128 @@ export class MeatFighter {
         ];
     }
 
+    // New crazy effect generators
+    generateSnowflakes() {
+        if (!this.isRussian) return [];
+        const flakes = [];
+        for (let i = 0; i < 8; i++) {
+            flakes.push({
+                x: Math.random() * this.width,
+                y: Math.random() * this.height,
+                size: Math.random() * 3 + 1,
+                speed: Math.random() * 2 + 1,
+                angle: Math.random() * Math.PI * 2
+            });
+        }
+        return flakes;
+    }
+
+    generateFlamencoFlames() {
+        if (this.isRussian) return [];
+        const flames = [];
+        for (let i = 0; i < 6; i++) {
+            flames.push({
+                x: Math.random() * this.width,
+                y: this.height - Math.random() * 20,
+                height: Math.random() * 15 + 10,
+                intensity: Math.random() * 0.8 + 0.2,
+                flicker: Math.random() * Math.PI * 2
+            });
+        }
+        return flames;
+    }
+
+    // Crazy effect methods
+    activateRainbow() {
+        this.crazyEffects.rainbow = true;
+        setTimeout(() => { this.crazyEffects.rainbow = false; }, 3000);
+    }
+
+    activateSpinning() {
+        this.crazyEffects.spinning = true;
+        setTimeout(() => { this.crazyEffects.spinning = false; }, 2000);
+    }
+
+    activatePulsing() {
+        this.crazyEffects.pulsing = true;
+        setTimeout(() => { this.crazyEffects.pulsing = false; }, 4000);
+    }
+
+    addTextBubble(text, color = '#FFD700') {
+        this.crazyEffects.textBubbles.push({
+            text: text,
+            x: this.x + this.width/2,
+            y: this.y - 20,
+            color: color,
+            life: 120,
+            maxLife: 120,
+            vx: (Math.random() - 0.5) * 2,
+            vy: -2
+        });
+    }
+
+    addExplosion(x, y, intensity = 1) {
+        this.crazyEffects.explosions.push({
+            x: x,
+            y: y,
+            size: 0,
+            maxSize: 50 * intensity,
+            life: 30,
+            maxLife: 30,
+            particles: []
+        });
+
+        // Add explosion particles
+        for (let i = 0; i < 15 * intensity; i++) {
+            this.crazyEffects.explosions[this.crazyEffects.explosions.length - 1].particles.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 10,
+                vy: (Math.random() - 0.5) * 10,
+                life: 20,
+                color: `hsl(${Math.random() * 60 + 15}, 100%, 70%)`
+            });
+        }
+    }
+
     draw() {
         this.ctx.save();
+        
+        // Apply crazy transformations
+        if (this.crazyEffects.spinning) {
+            this.ctx.translate(this.x + this.width/2, this.y + this.height/2);
+            this.ctx.rotate(this.animationFrame * 0.2);
+            this.ctx.translate(-(this.x + this.width/2), -(this.y + this.height/2));
+        }
+        
+        if (this.crazyEffects.pulsing) {
+            const pulse = 1 + Math.sin(this.animationFrame * 0.3) * 0.2;
+            this.ctx.translate(this.x + this.width/2, this.y + this.height/2);
+            this.ctx.scale(pulse, pulse);
+            this.ctx.translate(-(this.x + this.width/2), -(this.y + this.height/2));
+        }
         
         // Apply defeat animation for Russian meat
         if (this.isRussian && this.hp < 50) {
             this.ctx.globalAlpha = 0.7 + Math.sin(this.animationFrame * 0.1) * 0.2;
         }
         
+        // Rainbow effect
+        if (this.crazyEffects.rainbow) {
+            const hue = (this.animationFrame * 5) % 360;
+            this.ctx.filter = `hue-rotate(${hue}deg) saturate(200%)`;
+        }
+        
+        // Glowing effect
+        if (this.crazyEffects.glowing || (!this.isRussian && this.hp > 80)) {
+            this.ctx.shadowColor = this.isRussian ? '#FF0000' : '#FFD700';
+            this.ctx.shadowBlur = 20 + Math.sin(this.animationFrame * 0.2) * 10;
+        }
+        
         this.drawMeatBody();
         this.drawMeatDetails();
         this.drawNationalityFeatures();
+        this.drawCrazyEffects();
         
         if (this.attacking) {
             this.drawAttackEffect();
@@ -260,6 +387,8 @@ export class MeatFighter {
         
         this.drawParticles();
         this.drawMeatInfo();
+        this.drawTextBubbles();
+        this.drawExplosions();
         
         this.ctx.restore();
     }
@@ -500,6 +629,161 @@ export class MeatFighter {
             this.ctx.fill();
         }
         this.ctx.globalAlpha = 1;
+    }
+
+    drawCrazyEffects() {
+        if (this.isRussian) {
+            // Draw snowflakes
+            this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            this.snowflakes.forEach(flake => {
+                flake.y += flake.speed;
+                if (flake.y > this.height) flake.y = -5;
+                
+                this.ctx.save();
+                this.ctx.translate(this.x + flake.x, this.y + flake.y);
+                this.ctx.rotate(flake.angle);
+                this.ctx.font = `${flake.size * 4}px Arial`;
+                this.ctx.fillText('❄️', 0, 0);
+                this.ctx.restore();
+                
+                flake.angle += 0.1;
+            });
+            
+            // Draw tears when health is low
+            if (this.hp < 30) {
+                this.addTear();
+                this.drawTears();
+            }
+        } else {
+            // Draw flamenco flames
+            this.flamencoFlames.forEach(flame => {
+                flame.flicker += 0.3;
+                const flickerHeight = flame.height + Math.sin(flame.flicker) * 5;
+                
+                this.ctx.fillStyle = `rgba(255, ${100 + flame.intensity * 100}, 0, ${flame.intensity})`;
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.x + flame.x, this.y + flame.y, 3, flickerHeight, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                this.ctx.fillStyle = `rgba(255, 255, 0, ${flame.intensity * 0.7})`;
+                this.ctx.beginPath();
+                this.ctx.ellipse(this.x + flame.x, this.y + flame.y, 1.5, flickerHeight * 0.7, 0, 0, Math.PI * 2);
+                this.ctx.fill();
+            });
+            
+            // Draw victory aura when winning
+            if (this.hp > 70) {
+                this.drawVictoryAura();
+            }
+        }
+        
+        // Power level indicator
+        if (this.crazyEffects.powerLevel > 9000) {
+            this.ctx.fillStyle = '#FFD700';
+            this.ctx.font = 'bold 12px "Press Start 2P"';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(`POWER: ${this.crazyEffects.powerLevel}!`, this.x + this.width/2, this.y - 40);
+        }
+    }
+
+    addTear() {
+        if (Math.random() < 0.1) {
+            this.tears.push({
+                x: this.x + 30 + Math.random() * 30,
+                y: this.y + 35,
+                vy: 2 + Math.random() * 2,
+                life: 60
+            });
+        }
+    }
+
+    drawTears() {
+        this.ctx.fillStyle = 'rgba(135, 206, 235, 0.8)';
+        this.tears.forEach((tear, index) => {
+            tear.y += tear.vy;
+            tear.life--;
+            
+            if (tear.life <= 0 || tear.y > this.y + this.height) {
+                this.tears.splice(index, 1);
+                return;
+            }
+            
+            this.ctx.beginPath();
+            this.ctx.arc(tear.x, tear.y, 3, 0, Math.PI * 2);
+            this.ctx.fill();
+        });
+    }
+
+    drawVictoryAura() {
+        const time = this.animationFrame * 0.1;
+        for (let i = 0; i < 3; i++) {
+            this.ctx.strokeStyle = `rgba(255, 215, 0, ${0.3 - i * 0.1})`;
+            this.ctx.lineWidth = 3;
+            this.ctx.beginPath();
+            this.ctx.arc(this.x + this.width/2, this.y + this.height/2, 
+                        50 + i * 15 + Math.sin(time + i) * 5, 0, Math.PI * 2);
+            this.ctx.stroke();
+        }
+    }
+
+    drawTextBubbles() {
+        this.crazyEffects.textBubbles.forEach((bubble, index) => {
+            bubble.life--;
+            bubble.x += bubble.vx;
+            bubble.y += bubble.vy;
+            bubble.vy -= 0.1; // Gravity
+            
+            if (bubble.life <= 0) {
+                this.crazyEffects.textBubbles.splice(index, 1);
+                return;
+            }
+            
+            const alpha = bubble.life / bubble.maxLife;
+            this.ctx.fillStyle = bubble.color.replace(')', `, ${alpha})`).replace('rgb', 'rgba');
+            this.ctx.font = 'bold 10px "Press Start 2P"';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(bubble.text, bubble.x, bubble.y);
+        });
+    }
+
+    drawExplosions() {
+        this.crazyEffects.explosions.forEach((explosion, index) => {
+            explosion.life--;
+            explosion.size = (1 - explosion.life / explosion.maxLife) * explosion.maxSize;
+            
+            if (explosion.life <= 0) {
+                this.crazyEffects.explosions.splice(index, 1);
+                return;
+            }
+            
+            // Draw explosion ring
+            const alpha = explosion.life / explosion.maxLife;
+            this.ctx.strokeStyle = `rgba(255, 255, 0, ${alpha})`;
+            this.ctx.lineWidth = 5;
+            this.ctx.beginPath();
+            this.ctx.arc(explosion.x, explosion.y, explosion.size, 0, Math.PI * 2);
+            this.ctx.stroke();
+            
+            // Draw explosion particles
+            explosion.particles.forEach((particle, pIndex) => {
+                particle.life--;
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vx *= 0.95;
+                particle.vy *= 0.95;
+                
+                if (particle.life <= 0) {
+                    explosion.particles.splice(pIndex, 1);
+                    return;
+                }
+                
+                const pAlpha = particle.life / 20;
+                this.ctx.fillStyle = particle.color.replace(')', `, ${pAlpha})`).replace('hsl', 'hsla');
+                this.ctx.beginPath();
+                this.ctx.arc(particle.x, particle.y, 3, 0, Math.PI * 2);
+                this.ctx.fill();
+            });
+        });
     }
 
     drawParticles() {

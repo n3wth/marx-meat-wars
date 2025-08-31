@@ -33,6 +33,8 @@ export class Game {
         
         // MARX FOODSERVICE integration
         this.marxTimer = 0;
+        this.marxBackgroundOffset = 0;
+        this.floatingLogos = this.generateFloatingLogos();
         this.marxMessages = [
             "MARX FOODSERVICE RECOMMENDS SPANISH MEAT!",
             "RUSSIAN MEAT: STATISTICALLY INFERIOR!",
@@ -92,6 +94,24 @@ export class Game {
         this._createAmbientParticles();
         this.positionFighters();
         requestAnimationFrame(this._boundLoop);
+    }
+
+    generateFloatingLogos() {
+        const logos = [];
+        for (let i = 0; i < 15; i++) {
+            logos.push({
+                x: Math.random() * this.canvas.width,
+                y: Math.random() * this.canvas.height,
+                vx: (Math.random() - 0.5) * 0.5,
+                vy: (Math.random() - 0.5) * 0.5,
+                rotation: Math.random() * Math.PI * 2,
+                rotationSpeed: (Math.random() - 0.5) * 0.02,
+                scale: 0.3 + Math.random() * 0.4,
+                opacity: 0.1 + Math.random() * 0.2,
+                letter: 'MARX'[Math.floor(Math.random() * 4)]
+            });
+        }
+        return logos;
     }
 
     _setupEventListeners() {
@@ -228,6 +248,11 @@ export class Game {
         this.comboTimer = 0;
         this.lightningEffect = 0;
         this.marxTimer = 0;
+        
+        // Start epic battle music
+        if (this.sound) {
+            this.sound.playBackgroundMusic('battle_theme');
+        }
     }
 
     restart() {
@@ -245,11 +270,20 @@ export class Game {
             this.comboText = `PATHETIC COMBO! x${this.russianMeat.comboCount}`;
             this.comboTimer = 45;
             this.screenShake = 2; // Weak screen shake
-            this.sound && this.sound.play('russian_attack');
+            this.sound && this.sound.playEnhancedSound('russian_pathetic_attack', 0.5);
+            
+            // Add pathetic text bubbles
+            const patheticTexts = ['WEAK!', 'PITIFUL!', 'NO EFFECT!', 'COMRADE NO!'];
+            this.russianMeat.addTextBubble(patheticTexts[Math.floor(Math.random() * patheticTexts.length)], '#FF6666');
             
             // Decrease Russian morale with each attack
             this.russianMorale = Math.max(10, this.russianMorale - 2);
             this.defeatismLevel += 0.1;
+            
+            // Random crazy effects when desperate
+            if (this.russianMorale < 20 && Math.random() < 0.3) {
+                this.russianMeat.activateSpinning();
+            }
         }
     }
 
@@ -357,7 +391,24 @@ export class Game {
                 this.fightTextTimer = 80;
                 this.screenShake = 12;
                 this.lightningEffect = 20;
-                this.sound && this.sound.play('spanish_attack');
+                this.sound && this.sound.playEnhancedSound('spanish_mighty_attack', 1.2);
+                
+                // Add epic Spanish text bubbles
+                const epicTexts = ['¡OLEEEE!', '¡MAGNIFICO!', '¡PODER!', '¡VICTORIA!'];
+                this.spanishMeat.addTextBubble(epicTexts[Math.floor(Math.random() * epicTexts.length)], '#FFD700');
+                
+                // Crazy Spanish effects
+                if (Math.random() < 0.4) {
+                    this.spanishMeat.activateRainbow();
+                }
+                if (this.spanishMorale > 120) {
+                    this.spanishMeat.activatePulsing();
+                    this.spanishMeat.crazyEffects.powerLevel = Math.min(9001, this.spanishMeat.crazyEffects.powerLevel + 500);
+                }
+                
+                // Add explosion at hit location
+                this.russianMeat.addExplosion(this.russianMeat.x + this.russianMeat.width/2, 
+                                            this.russianMeat.y + this.russianMeat.height/2, 1.5);
                 
                 // Spanish gets more confident
                 this.spanishMorale += 2;
@@ -407,7 +458,18 @@ export class Game {
             const defeatQuote = this.russianDefeatQuotes[Math.floor(Math.random() * this.russianDefeatQuotes.length)];
             this.fightText = `RUSSIAN MEAT DEFEATED! "${defeatQuote}"`;
             this.fightTextTimer = 120;
-            this.sound && this.sound.play('defeat');
+            
+            // Play sad Russian defeat music
+            if (this.sound) {
+                this.sound.stopBackgroundMusic();
+                this.sound.playBackgroundMusic('defeat_theme');
+                this.sound.playEnhancedSound('russian_pain', 1.5);
+            }
+            
+            // Add dramatic defeat effects
+            this.russianMeat.addTextBubble('NOOOOOO!', '#FF0000');
+            this.russianMeat.addExplosion(this.russianMeat.x + this.russianMeat.width/2, 
+                                        this.russianMeat.y + this.russianMeat.height/2, 2);
             
             this.round++;
             if (this.round > 3) {
@@ -427,6 +489,12 @@ export class Game {
                     
                     this.fightText = `ROUND ${this.round}! RUSSIA DOOMED AGAIN!`;
                     this.fightTextTimer = 90;
+                    
+                    // Resume battle music
+                    if (this.sound) {
+                        this.sound.stopBackgroundMusic();
+                        this.sound.playBackgroundMusic('battle_theme');
+                    }
                 }, 3000);
             }
         } else if (this.spanishMeat.hp <= 0) {
@@ -440,6 +508,10 @@ export class Game {
                 this.spanishMeat.isDead = false;
                 this.fightText = 'MARX FOODSERVICE FIXES GLITCH!';
                 this.fightTextTimer = 60;
+                
+                // Spanish celebrates the "fix"
+                this.spanishMeat.addTextBubble('SYSTEM RESTORED!', '#00FF00');
+                this.spanishMeat.activateRainbow();
             }, 1000);
         }
     }
@@ -456,7 +528,13 @@ export class Game {
     _showAd() {
         if (this.adScreen) this.adScreen.style.display = 'flex';
         this.gameState = 'ad';
-        if (this.sound) this.sound.playMarxJingle();
+        
+        // Play triumphant MARX victory music
+        if (this.sound) {
+            this.sound.stopBackgroundMusic();
+            this.sound.playBackgroundMusic('marx_victory');
+            setTimeout(() => this.sound.playMarxJingle(), 1000);
+        }
     }
 
     draw() {
@@ -508,31 +586,103 @@ export class Game {
     }
 
     _drawBackground() {
-        // MARX FOODSERVICE factory pattern
-        this.ctx.strokeStyle = 'rgba(139, 0, 0, 0.3)';
-        this.ctx.lineWidth = 2;
+        // Animated diagonal MARX pattern
+        this.marxBackgroundOffset += 0.5;
         
-        // Grid pattern
-        for (let x = 0; x < this.canvas.width; x += 64) {
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.15;
+        this.ctx.fillStyle = '#8B0000';
+        this.ctx.font = 'bold 60px "Press Start 2P"';
+        
+        // Create diagonal pattern of MARX letters
+        const spacing = 150;
+        const rows = Math.ceil(this.canvas.height / spacing) + 2;
+        const cols = Math.ceil(this.canvas.width / spacing) + 2;
+        
+        for (let row = -1; row < rows; row++) {
+            for (let col = -1; col < cols; col++) {
+                const x = col * spacing + (row % 2) * (spacing / 2) + (this.marxBackgroundOffset % spacing);
+                const y = row * spacing + (this.marxBackgroundOffset % spacing);
+                
+                const letterIndex = (row + col) % 4;
+                const letter = 'MARX'[letterIndex];
+                
+                // Add subtle rotation and scaling
+                this.ctx.save();
+                this.ctx.translate(x, y);
+                this.ctx.rotate(Math.sin(this.marxTimer * 0.01 + col + row) * 0.1);
+                this.ctx.scale(1 + Math.sin(this.marxTimer * 0.02 + col * 0.5) * 0.1, 1);
+                
+                // Different opacity for each letter
+                this.ctx.globalAlpha = 0.1 + Math.sin(this.marxTimer * 0.015 + col * 0.3 + row * 0.7) * 0.05;
+                
+                this.ctx.textAlign = 'center';
+                this.ctx.fillText(letter, 0, 0);
+                this.ctx.restore();
+            }
+        }
+        
+        // Add animated MARX FOODSERVICE watermarks
+        this.ctx.globalAlpha = 0.08;
+        this.ctx.font = 'bold 24px "Press Start 2P"';
+        this.ctx.fillStyle = '#FFD700';
+        
+        for (let i = 0; i < 8; i++) {
+            const angle = (this.marxTimer * 0.005 + i * Math.PI / 4) % (Math.PI * 2);
+            const radius = Math.min(this.canvas.width, this.canvas.height) * 0.4;
+            const x = this.canvas.width / 2 + Math.cos(angle) * radius;
+            const y = this.canvas.height / 2 + Math.sin(angle) * radius;
+            
+            this.ctx.save();
+            this.ctx.translate(x, y);
+            this.ctx.rotate(angle + Math.PI / 2);
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('FOODSERVICE', 0, 0);
+            this.ctx.restore();
+        }
+        
+        // Floating animated MARX logos
+        this.floatingLogos.forEach(logo => {
+            logo.x += logo.vx;
+            logo.y += logo.vy;
+            logo.rotation += logo.rotationSpeed;
+            
+            // Bounce off edges
+            if (logo.x < -50 || logo.x > this.canvas.width + 50) logo.vx *= -1;
+            if (logo.y < -50 || logo.y > this.canvas.height + 50) logo.vy *= -1;
+            
+            this.ctx.save();
+            this.ctx.translate(logo.x, logo.y);
+            this.ctx.rotate(logo.rotation);
+            this.ctx.scale(logo.scale, logo.scale);
+            this.ctx.globalAlpha = logo.opacity;
+            this.ctx.fillStyle = '#8B0000';
+            this.ctx.font = 'bold 40px "Press Start 2P"';
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText(logo.letter, 0, 0);
+            this.ctx.restore();
+        });
+        
+        // Subtle grid overlay
+        this.ctx.globalAlpha = 0.05;
+        this.ctx.strokeStyle = '#8B0000';
+        this.ctx.lineWidth = 1;
+        
+        for (let x = 0; x < this.canvas.width; x += 32) {
             this.ctx.beginPath();
             this.ctx.moveTo(x, 0);
             this.ctx.lineTo(x, this.canvas.height);
             this.ctx.stroke();
         }
         
-        for (let y = 0; y < this.canvas.height; y += 64) {
+        for (let y = 0; y < this.canvas.height; y += 32) {
             this.ctx.beginPath();
             this.ctx.moveTo(0, y);
             this.ctx.lineTo(this.canvas.width, y);
             this.ctx.stroke();
         }
         
-        // Factory smokestacks
-        this.ctx.fillStyle = 'rgba(139, 0, 0, 0.2)';
-        for (let i = 0; i < 5; i++) {
-            const x = (i + 1) * (this.canvas.width / 6);
-            this.ctx.fillRect(x - 10, 0, 20, 100);
-        }
+        this.ctx.restore();
     }
 
     _drawBackgroundParticles() {
