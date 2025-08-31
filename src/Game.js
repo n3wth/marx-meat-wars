@@ -825,9 +825,17 @@ export class Game {
         
         this._drawRoundInfo();
         this._drawHealthBars();
-        this._drawRiggingIndicators();
-        this._drawCommentary();
-        this._drawAchievements();
+        
+        // Only draw complex UI elements if there's enough space
+        if (this.canvas.width > 1000) {
+            this._drawRiggingIndicators();
+            this._drawAchievements();
+        }
+        
+        // Always draw commentary but position it carefully
+        if (this.canvas.height > 700) {
+            this._drawCommentary();
+        }
         
         if (this.screenShake > 0) {
             this.ctx.restore();
@@ -1056,92 +1064,70 @@ export class Game {
     }
 
     _drawRiggingIndicators() {
-        // Show rigging level (for comedy) - moved up to avoid commentary overlap
-        this.ctx.fillStyle = 'rgba(220, 20, 60, 0.8)';
+        // Simple, compact rigging display - safe positioning
+        this.ctx.fillStyle = 'rgba(220, 20, 60, 0.9)';
         this.ctx.font = 'bold 8px "Press Start 2P"';
         this.ctx.textAlign = 'left';
-        this.ctx.fillText(`RIGGING: ${Math.floor(this.riggedFactor * 100)}%`, 20, this.canvas.height - 200);
-        this.ctx.fillText(`RUS MORALE: ${Math.floor(this.russianMorale)}%`, 20, this.canvas.height - 185);
-        this.ctx.fillText(`SPA CONFIDENCE: ${Math.floor(this.spanishMorale)}%`, 20, this.canvas.height - 170);
         
-        // MARX FOODSERVICE prediction - moved up
+        // Left side stats - positioned safely
+        this.ctx.fillText(`RIGGING: ${Math.floor(this.riggedFactor * 100)}%`, 20, this.canvas.height - 60);
+        this.ctx.fillText(`RUS MORALE: ${Math.floor(this.russianMorale)}%`, 20, this.canvas.height - 45);
+        this.ctx.fillText(`SPA CONFIDENCE: ${Math.floor(this.spanishMorale)}%`, 20, this.canvas.height - 30);
+        
+        // Right side prediction - positioned safely  
         this.ctx.textAlign = 'right';
         this.ctx.fillStyle = '#FFD700';
-        this.ctx.font = 'bold 8px "Press Start 2P"';
-        this.ctx.fillText('MARX PREDICTION: SPAIN WINS', this.canvas.width - 20, this.canvas.height - 200);
+        this.ctx.fillText('MARX PREDICTION: SPAIN WINS', this.canvas.width - 20, this.canvas.height - 60);
         this.ctx.fillText(`VICTORY PROB: ${Math.min(99, Math.floor(80 + this.riggedFactor * 15))}%`, 
-                         this.canvas.width - 20, this.canvas.height - 185);
+                         this.canvas.width - 20, this.canvas.height - 45);
     }
 
     _drawCommentary() {
-        if (this.layoutManager && !this.layoutManager.shouldShow('commentary', 'important')) return;
         if (!this.currentCommentary || this.commentaryDisplayTimer <= 0) return;
         
-        // Fallback positioning
-        const commentaryY = this.canvas.height - 150;
-        const commentaryHeight = 50;
-        const padding = 15;
-            
-        // Background with MARX FOODSERVICE styling
+        // Simple, safe positioning - top center, below health bars
+        const commentaryY = 120;
+        const commentaryHeight = 40;
+        const commentaryWidth = Math.min(600, this.canvas.width - 40);
+        const commentaryX = (this.canvas.width - commentaryWidth) / 2;
+        
+        // Background
         this.ctx.fillStyle = 'rgba(255, 215, 0, 0.95)';
-        this.ctx.fillRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
-            
+        this.ctx.fillRect(commentaryX, commentaryY, commentaryWidth, commentaryHeight);
+        
         // Border
         this.ctx.strokeStyle = '#8B0000';
         this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
+        this.ctx.strokeRect(commentaryX, commentaryY, commentaryWidth, commentaryHeight);
         
-        // Commentary text
+        // Commentary text - single line, truncated if needed
         this.ctx.fillStyle = '#8B0000';
-        this.ctx.font = 'bold 12px "Press Start 2P"';
-        this.ctx.textAlign = 'left';
-        
-        // Word wrap the commentary
-        const maxWidth = this.canvas.width - (padding * 4);
-        const words = this.currentCommentary.split(' ');
-        let line = '';
-        let y = commentaryY + 25;
-        
-        for (let i = 0; i < words.length; i++) {
-            const testLine = line + words[i] + ' ';
-            const metrics = this.ctx.measureText(testLine);
-            const testWidth = metrics.width;
-            
-            if (testWidth > maxWidth && i > 0) {
-                this.ctx.fillText(line, padding * 2, y);
-                line = words[i] + ' ';
-                y += 16;
-            } else {
-                line = testLine;
-            }
-        }
-        this.ctx.fillText(line, padding * 2, y);
-        
-        // Commentary fade effect
-        if (this.commentaryDisplayTimer < 30) {
-            this.ctx.fillStyle = `rgba(255, 215, 0, ${this.commentaryDisplayTimer / 30})`;
-            this.ctx.fillRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
-        }
-        
-        // Microphone icon
-        this.ctx.fillStyle = '#8B0000';
-        this.ctx.font = '16px Arial';
-        this.ctx.fillText('🎙️', this.canvas.width - 50, commentaryY + 20);
-        
-        // "LIVE" indicator
-        this.ctx.fillStyle = '#DC143C';
         this.ctx.font = 'bold 10px "Press Start 2P"';
+        this.ctx.textAlign = 'center';
+        
+        // Truncate text if too long
+        let displayText = this.currentCommentary;
+        if (displayText.length > 60) {
+            displayText = displayText.substring(0, 57) + '...';
+        }
+        
+        this.ctx.fillText(displayText, this.canvas.width / 2, commentaryY + 25);
+        
+        // LIVE indicator
+        this.ctx.fillStyle = '#DC143C';
+        this.ctx.font = 'bold 8px "Press Start 2P"';
         this.ctx.textAlign = 'right';
-        this.ctx.fillText('LIVE', this.canvas.width - 25, commentaryY + 35);
+        this.ctx.fillText('🎙️ LIVE', commentaryX + commentaryWidth - 10, commentaryY + 15);
     }
 
     _drawAchievements() {
-        if (this.layoutManager && !this.layoutManager.shouldShow('achievements', 'nice_to_have')) return;
+        // Only show on larger screens to avoid overlap
+        if (this.canvas.width < 1200) return;
         
         const recentUnlocks = this.achievements.getRecentUnlocks();
         if (recentUnlocks.length > 0) {
             recentUnlocks.forEach((achievement, index) => {
-                const y = 200 + (index * 55); // Simple positioning
+                const y = 180 + (index * 50); // Positioned below MARX logo area
                 const timeSinceUnlock = Date.now() - achievement.timestamp;
                 const fadeTime = 5000; // 5 seconds
                 
@@ -1186,21 +1172,23 @@ export class Game {
             });
         }
         
-        // Show achievement progress summary - moved to avoid overlap with MARX logo
-        const progress = this.achievements.getProgressSummary();
-        this.ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
-        this.ctx.fillRect(this.canvas.width - 200, 90, 180, 45);
-        
-        this.ctx.strokeStyle = '#8B0000';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(this.canvas.width - 200, 90, 180, 45);
-        
-        this.ctx.fillStyle = '#8B0000';
-        this.ctx.font = 'bold 8px "Press Start 2P"';
-        this.ctx.textAlign = 'left';
-        this.ctx.fillText(`ACHIEVEMENTS: ${progress.unlocked}/${progress.total}`, this.canvas.width - 195, 105);
-        this.ctx.fillText(`FAILURE SCORE: ${progress.score}`, this.canvas.width - 195, 118);
-        this.ctx.fillText(`COMPLETION: ${progress.percentage}%`, this.canvas.width - 195, 131);
+        // Show achievement progress summary - only on large screens
+        if (this.canvas.width > 1200) {
+            const progress = this.achievements.getProgressSummary();
+            this.ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+            this.ctx.fillRect(this.canvas.width - 180, 120, 160, 40);
+            
+            this.ctx.strokeStyle = '#8B0000';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(this.canvas.width - 180, 120, 160, 40);
+            
+            this.ctx.fillStyle = '#8B0000';
+            this.ctx.font = 'bold 7px "Press Start 2P"';
+            this.ctx.textAlign = 'left';
+            this.ctx.fillText(`ACH: ${progress.unlocked}/${progress.total}`, this.canvas.width - 175, 135);
+            this.ctx.fillText(`FAILURE SCORE: ${progress.score}`, this.canvas.width - 175, 145);
+            this.ctx.fillText(`COMPLETION: ${progress.percentage}%`, this.canvas.width - 175, 155);
+        }
     }
 
     gameLoop() {
