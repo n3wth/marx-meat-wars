@@ -73,6 +73,7 @@ export class MeatFighter {
             spinning: false,
             pulsing: false,
             glowing: false,
+            hunting: false,
             trailing: [],
             explosions: [],
             textBubbles: [],
@@ -302,6 +303,11 @@ export class MeatFighter {
         setTimeout(() => { this.crazyEffects.pulsing = false; }, 4000);
     }
 
+    activateHunting() {
+        this.crazyEffects.hunting = true;
+        setTimeout(() => { this.crazyEffects.hunting = false; }, 2000);
+    }
+
     addTextBubble(text, color = '#FFD700') {
         this.crazyEffects.textBubbles.push({
             text: text,
@@ -371,6 +377,22 @@ export class MeatFighter {
         if (this.crazyEffects.glowing || (!this.isRussian && this.hp > 80)) {
             this.ctx.shadowColor = this.isRussian ? '#FF0000' : '#FFD700';
             this.ctx.shadowBlur = 20 + Math.sin(this.animationFrame * 0.2) * 10;
+        }
+        
+        // Hunting effect for Spanish meat
+        if (this.crazyEffects.hunting && !this.isRussian) {
+            this.ctx.shadowColor = '#DC143C';
+            this.ctx.shadowBlur = 30 + Math.sin(this.animationFrame * 0.5) * 20;
+            
+            // Add hunting aura rings
+            for (let i = 0; i < 3; i++) {
+                this.ctx.strokeStyle = `rgba(220, 20, 60, ${0.4 - i * 0.1})`;
+                this.ctx.lineWidth = 4;
+                this.ctx.beginPath();
+                this.ctx.arc(this.x + this.width/2, this.y + this.height/2, 
+                           60 + i * 20 + Math.sin(this.animationFrame * 0.3 + i) * 10, 0, Math.PI * 2);
+                this.ctx.stroke();
+            }
         }
         
         this.drawMeatBody();

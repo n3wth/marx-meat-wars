@@ -351,10 +351,38 @@ export class Game {
             this.russianMeat.attack();
         }
         
-        // Spanish AI - gets more aggressive and confident
-        const spanishAttackChance = 0.04 + (this.spanishMorale / 2000);
+        // Spanish AI - VERY aggressive and relentless
+        const spanishAttackChance = 0.15 + (this.spanishMorale / 1000); // Much more aggressive
         if (Math.random() < spanishAttackChance && !this.spanishMeat.attacking && !this.spanishMeat.isDead) {
             this.spanishMeat.attack();
+        }
+        
+        // Spanish meat actively hunts Russian meat
+        if (!this.spanishMeat.attacking && !this.spanishMeat.isDead) {
+            const distanceToRussian = Math.abs(this.spanishMeat.x - this.russianMeat.x);
+            const optimalDistance = 120; // Stay close enough to attack
+            
+            if (distanceToRussian > optimalDistance) {
+                // Move towards Russian meat
+                const direction = this.russianMeat.x < this.spanishMeat.x ? -1 : 1;
+                const huntSpeed = 1.5 + (this.spanishMorale / 150); // Gets faster as confidence increases
+                this.spanishMeat.x += direction * huntSpeed;
+                
+                // Keep Spanish meat on screen
+                this.spanishMeat.x = Math.max(0, Math.min(this.canvas.width - this.spanishMeat.width, this.spanishMeat.x));
+                
+                // Add hunting text bubbles and effects occasionally
+                if (Math.random() < 0.02) {
+                    const huntTexts = ['¡TE PERSIGO!', '¡NO ESCAPE!', '¡HUNTING!', '¡VICTORY!'];
+                    this.spanishMeat.addTextBubble(huntTexts[Math.floor(Math.random() * huntTexts.length)], '#FFD700');
+                    this.spanishMeat.activateHunting();
+                }
+            } else {
+                // Close enough - be extra aggressive
+                if (Math.random() < 0.25) { // 25% chance per frame when close!
+                    this.spanishMeat.attack();
+                }
+            }
         }
         
         // Check Russian attacks (weak and often miss)
