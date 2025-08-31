@@ -667,10 +667,53 @@ export class Game {
         if (this.lightningEffect > 0) this.lightningEffect--;
         if (this.commentaryDisplayTimer > 0) this.commentaryDisplayTimer--;
         
-        // Update UI
+        // Update HTML UI elements
         if (this.uiRussianHP) this.uiRussianHP.textContent = this.russianMeat.hp;
         if (this.uiSpanishHP) this.uiSpanishHP.textContent = this.spanishMeat.hp;
         if (this.uiRound) this.uiRound.textContent = this.round;
+        
+        // Update HTML health bars
+        const russianHealthBar = document.getElementById('russianHealthBar');
+        const spanishHealthBar = document.getElementById('spanishHealthBar');
+        const riggingLevelUI = document.getElementById('riggingLevel');
+        const achievementCountUI = document.getElementById('achievementCount');
+        
+        if (russianHealthBar) {
+            const russianPercent = (this.russianMeat.hp / this.russianMeat.maxHp) * 100;
+            russianHealthBar.style.width = `${russianPercent}%`;
+            
+            // Change color based on health
+            if (russianPercent > 60) {
+                russianHealthBar.style.background = 'linear-gradient(90deg, #8B0000, #DC143C)';
+            } else if (russianPercent > 30) {
+                russianHealthBar.style.background = 'linear-gradient(90deg, #DC143C, #FF6B6B)';
+            } else {
+                russianHealthBar.style.background = 'linear-gradient(90deg, #FF0000, #FF4444)';
+            }
+        }
+        
+        if (spanishHealthBar) {
+            const spanishPercent = (this.spanishMeat.hp / this.spanishMeat.maxHp) * 100;
+            spanishHealthBar.style.width = `${spanishPercent}%`;
+            
+            // Spanish health always looks good
+            if (spanishPercent > 60) {
+                spanishHealthBar.style.background = 'linear-gradient(90deg, #00FF00, #32CD32)';
+            } else if (spanishPercent > 30) {
+                spanishHealthBar.style.background = 'linear-gradient(90deg, #FFFF00, #FFD700)';
+            } else {
+                spanishHealthBar.style.background = 'linear-gradient(90deg, #FF6B6B, #FF8C00)';
+            }
+        }
+        
+        if (riggingLevelUI) {
+            riggingLevelUI.textContent = Math.floor(this.riggedFactor * 100);
+        }
+        
+        if (achievementCountUI) {
+            const progress = this.achievements.getProgressSummary();
+            achievementCountUI.textContent = progress.unlocked;
+        }
     }
 
     _endRound() {
@@ -824,7 +867,7 @@ export class Game {
         }
         
         this._drawRoundInfo();
-        this._drawHealthBars();
+        // Remove canvas health bars - using HTML UI instead
         
         // Only draw complex UI elements if there's enough space
         if (this.canvas.width > 1000) {
@@ -1085,11 +1128,11 @@ export class Game {
     _drawCommentary() {
         if (!this.currentCommentary || this.commentaryDisplayTimer <= 0) return;
         
-        // Simple, safe positioning - top center, below health bars
-        const commentaryY = 120;
-        const commentaryHeight = 40;
-        const commentaryWidth = Math.min(600, this.canvas.width - 40);
-        const commentaryX = (this.canvas.width - commentaryWidth) / 2;
+        // Position commentary as a ticker at the very top
+        const commentaryY = 5;
+        const commentaryHeight = 25;
+        const commentaryWidth = this.canvas.width - 20;
+        const commentaryX = 10;
         
         // Background
         this.ctx.fillStyle = 'rgba(255, 215, 0, 0.95)';
@@ -1100,24 +1143,24 @@ export class Game {
         this.ctx.lineWidth = 2;
         this.ctx.strokeRect(commentaryX, commentaryY, commentaryWidth, commentaryHeight);
         
-        // Commentary text - single line, truncated if needed
+        // Commentary text - ticker style
         this.ctx.fillStyle = '#8B0000';
-        this.ctx.font = 'bold 10px "Press Start 2P"';
-        this.ctx.textAlign = 'center';
+        this.ctx.font = 'bold 8px "Press Start 2P"';
+        this.ctx.textAlign = 'left';
         
         // Truncate text if too long
         let displayText = this.currentCommentary;
-        if (displayText.length > 60) {
-            displayText = displayText.substring(0, 57) + '...';
+        if (displayText.length > 80) {
+            displayText = displayText.substring(0, 77) + '...';
         }
         
-        this.ctx.fillText(displayText, this.canvas.width / 2, commentaryY + 25);
+        this.ctx.fillText('🎙️ ' + displayText, commentaryX + 5, commentaryY + 16);
         
         // LIVE indicator
         this.ctx.fillStyle = '#DC143C';
-        this.ctx.font = 'bold 8px "Press Start 2P"';
+        this.ctx.font = 'bold 6px "Press Start 2P"';
         this.ctx.textAlign = 'right';
-        this.ctx.fillText('🎙️ LIVE', commentaryX + commentaryWidth - 10, commentaryY + 15);
+        this.ctx.fillText('LIVE', commentaryX + commentaryWidth - 5, commentaryY + 10);
     }
 
     _drawAchievements() {
