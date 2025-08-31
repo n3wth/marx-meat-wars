@@ -992,9 +992,9 @@ export class Game {
 
     _drawRoundInfo() {
         this.ctx.fillStyle = '#8B0000';
-        this.ctx.font = 'bold 16px "Press Start 2P"';
+        this.ctx.font = 'bold 14px "Press Start 2P"';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(`ROUND ${this.round} - RUSSIA LOSING`, this.canvas.width / 2, this.canvas.height - 80);
+        this.ctx.fillText(`ROUND ${this.round} - RUSSIA LOSING`, this.canvas.width / 2, this.canvas.height - 220);
     }
 
     _drawHealthBars() {
@@ -1042,27 +1042,28 @@ export class Game {
     }
 
     _drawRiggingIndicators() {
-        // Show rigging level (for comedy)
+        // Show rigging level (for comedy) - moved up to avoid commentary overlap
         this.ctx.fillStyle = 'rgba(220, 20, 60, 0.8)';
-        this.ctx.font = 'bold 10px "Press Start 2P"';
+        this.ctx.font = 'bold 8px "Press Start 2P"';
         this.ctx.textAlign = 'left';
-        this.ctx.fillText(`RIGGING LEVEL: ${Math.floor(this.riggedFactor * 100)}%`, 20, this.canvas.height - 40);
-        this.ctx.fillText(`RUSSIAN MORALE: ${Math.floor(this.russianMorale)}%`, 20, this.canvas.height - 25);
-        this.ctx.fillText(`SPANISH CONFIDENCE: ${Math.floor(this.spanishMorale)}%`, 20, this.canvas.height - 10);
+        this.ctx.fillText(`RIGGING: ${Math.floor(this.riggedFactor * 100)}%`, 20, this.canvas.height - 200);
+        this.ctx.fillText(`RUS MORALE: ${Math.floor(this.russianMorale)}%`, 20, this.canvas.height - 185);
+        this.ctx.fillText(`SPA CONFIDENCE: ${Math.floor(this.spanishMorale)}%`, 20, this.canvas.height - 170);
         
-        // MARX FOODSERVICE prediction
+        // MARX FOODSERVICE prediction - moved up
         this.ctx.textAlign = 'right';
         this.ctx.fillStyle = '#FFD700';
-        this.ctx.fillText('MARX PREDICTION: SPAIN WINS', this.canvas.width - 20, this.canvas.height - 40);
-        this.ctx.fillText(`SPANISH VICTORY PROBABILITY: ${Math.min(99, Math.floor(80 + this.riggedFactor * 15))}%`, 
-                         this.canvas.width - 20, this.canvas.height - 25);
+        this.ctx.font = 'bold 8px "Press Start 2P"';
+        this.ctx.fillText('MARX PREDICTION: SPAIN WINS', this.canvas.width - 20, this.canvas.height - 200);
+        this.ctx.fillText(`VICTORY PROB: ${Math.min(99, Math.floor(80 + this.riggedFactor * 15))}%`, 
+                         this.canvas.width - 20, this.canvas.height - 185);
     }
 
     _drawCommentary() {
         if (this.currentCommentary && this.commentaryDisplayTimer > 0) {
-            // Commentary box background
-            const commentaryY = 160;
-            const commentaryHeight = 60;
+            // Commentary box background - moved to bottom
+            const commentaryY = this.canvas.height - 150;
+            const commentaryHeight = 50;
             const padding = 15;
             
             // Background with MARX FOODSERVICE styling
@@ -1120,40 +1121,40 @@ export class Game {
     }
 
     _drawAchievements() {
-        // Show recent achievement unlocks
+        // Show recent achievement unlocks - moved to right side, lower
         const recentUnlocks = this.achievements.getRecentUnlocks();
         if (recentUnlocks.length > 0) {
             recentUnlocks.forEach((achievement, index) => {
-                const y = 100 + (index * 70);
+                const y = 200 + (index * 65); // Moved down and made smaller
                 const timeSinceUnlock = Date.now() - achievement.timestamp;
                 const fadeTime = 5000; // 5 seconds
                 
                 if (timeSinceUnlock < fadeTime) {
                     const alpha = Math.max(0, 1 - (timeSinceUnlock / fadeTime));
                     
-                    // Achievement notification background
+                    // Achievement notification background - smaller
                     this.ctx.fillStyle = `rgba(255, 215, 0, ${alpha * 0.95})`;
-                    this.ctx.fillRect(this.canvas.width - 320, y, 300, 60);
+                    this.ctx.fillRect(this.canvas.width - 280, y, 260, 50);
                     
                     // Border
                     this.ctx.strokeStyle = `rgba(139, 0, 0, ${alpha})`;
-                    this.ctx.lineWidth = 3;
-                    this.ctx.strokeRect(this.canvas.width - 320, y, 300, 60);
+                    this.ctx.lineWidth = 2;
+                    this.ctx.strokeRect(this.canvas.width - 280, y, 260, 50);
                     
                     // Achievement icon
                     this.ctx.fillStyle = `rgba(139, 0, 0, ${alpha})`;
-                    this.ctx.font = '24px Arial';
+                    this.ctx.font = '16px Arial';
                     this.ctx.textAlign = 'left';
-                    this.ctx.fillText(achievement.icon, this.canvas.width - 310, y + 30);
+                    this.ctx.fillText(achievement.icon, this.canvas.width - 270, y + 20);
                     
-                    // Achievement text
-                    this.ctx.font = 'bold 10px "Press Start 2P"';
-                    this.ctx.fillText('ACHIEVEMENT UNLOCKED!', this.canvas.width - 280, y + 15);
-                    this.ctx.fillText(achievement.name, this.canvas.width - 280, y + 30);
+                    // Achievement text - smaller
+                    this.ctx.font = 'bold 8px "Press Start 2P"';
+                    this.ctx.fillText('UNLOCKED!', this.canvas.width - 250, y + 12);
+                    this.ctx.fillText(achievement.name, this.canvas.width - 250, y + 25);
                     
-                    // MARX quote
-                    this.ctx.font = '8px "Press Start 2P"';
-                    this.ctx.fillText(achievement.marxQuote, this.canvas.width - 280, y + 45);
+                    // MARX quote - smaller
+                    this.ctx.font = '6px "Press Start 2P"';
+                    this.ctx.fillText(achievement.marxQuote, this.canvas.width - 250, y + 38);
                     
                     // Rarity indicator
                     const rarityColors = {
@@ -1164,26 +1165,26 @@ export class Game {
                         'mythical': '#FF00FF'
                     };
                     this.ctx.fillStyle = `${rarityColors[achievement.rarity] || '#CCCCCC'}`;
-                    this.ctx.fillRect(this.canvas.width - 320, y, 5, 60);
+                    this.ctx.fillRect(this.canvas.width - 280, y, 4, 50);
                 }
             });
         }
         
-        // Show achievement progress summary in corner
+        // Show achievement progress summary - moved to avoid overlap with MARX logo
         const progress = this.achievements.getProgressSummary();
         this.ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
-        this.ctx.fillRect(this.canvas.width - 200, 20, 180, 50);
+        this.ctx.fillRect(this.canvas.width - 200, 90, 180, 45);
         
         this.ctx.strokeStyle = '#8B0000';
         this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(this.canvas.width - 200, 20, 180, 50);
+        this.ctx.strokeRect(this.canvas.width - 200, 90, 180, 45);
         
         this.ctx.fillStyle = '#8B0000';
-        this.ctx.font = 'bold 10px "Press Start 2P"';
+        this.ctx.font = 'bold 8px "Press Start 2P"';
         this.ctx.textAlign = 'left';
-        this.ctx.fillText(`ACHIEVEMENTS: ${progress.unlocked}/${progress.total}`, this.canvas.width - 195, 35);
-        this.ctx.fillText(`FAILURE SCORE: ${progress.score}`, this.canvas.width - 195, 50);
-        this.ctx.fillText(`COMPLETION: ${progress.percentage}%`, this.canvas.width - 195, 65);
+        this.ctx.fillText(`ACHIEVEMENTS: ${progress.unlocked}/${progress.total}`, this.canvas.width - 195, 105);
+        this.ctx.fillText(`FAILURE SCORE: ${progress.score}`, this.canvas.width - 195, 118);
+        this.ctx.fillText(`COMPLETION: ${progress.percentage}%`, this.canvas.width - 195, 131);
     }
 
     gameLoop() {
