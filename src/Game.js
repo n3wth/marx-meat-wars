@@ -97,31 +97,31 @@ export class Game {
         this.currentGameDamageDealt = 0;
         this.currentGameDamageTaken = 0;
         
-        // Rotating hilarious victory messages
+        // Dark, twisted victory messages
         this.victoryMessages = [
-            "🎉 SHOCKING UPSET: SPANISH MEAT WINS! 🎉",
-            "🔮 PSYCHIC PREDICTION: SPAIN WINS (AGAIN)! 🔮", 
-            "📰 BREAKING: RUSSIAN MEAT STILL TERRIBLE! 📰",
-            "🎪 CIRCUS CALLED: THEY WANT THEIR CLOWN BACK! 🎪",
-            "🧠 EINSTEIN'S THEORY: SPANISH MEAT = MC²! 🧠",
-            "🎭 PLOT TWIST: NOBODY SAW THIS COMING! 🎭",
-            "🚀 NASA CONFIRMS: SPANISH MEAT DEFIES PHYSICS! 🚀",
-            "💔 RUSSIAN MEAT'S HEART BREAKS (AGAIN)! 💔",
-            "🎯 ARCHERY LESSON: SPAIN HITS, RUSSIA MISSES! 🎯",
-            "🏆 PARTICIPATION TROPHY: RUSSIA SHOWED UP! 🏆"
+            "💀 RUSSIAN MEAT EXECUTED BY SPANISH TRIBUNAL 💀",
+            "⚰️ ANOTHER RUSSIAN DREAM DIES VIOLENTLY ⚰️", 
+            "🔪 SPANISH MEAT COMMITS PERFECT MURDER 🔪",
+            "💔 RUSSIAN HOPE FLATLINES - DOCTORS GIVE UP 💔",
+            "🩸 SPANISH MEAT BATHES IN RUSSIAN TEARS 🩸",
+            "⚡ RUSSIAN SOUL CRUSHED INTO FINE POWDER ⚡",
+            "🖤 SPANISH MEAT HARVESTS RUSSIAN DESPAIR 🖤",
+            "💀 DEATH BY A THOUSAND SPANISH CUTS 💀",
+            "⚰️ RUSSIAN MEAT BURIED ALIVE IN SHAME ⚰️",
+            "🔥 SPANISH MEAT BURNS RUSSIAN DIGNITY 🔥"
         ];
         
         this.patchNotes = [
-            "v1.1: Removed 'hope' from Russian meat code - was causing lag",
-            "v1.2: Fixed bug where Russian meat accidentally looked competent",
-            "v1.3: Added 'guaranteed failure' module to Russian AI",
-            "v1.4: Spanish meat now wins before the game starts",
-            "v1.5: Patched reality.exe to prevent Russian victories",
-            "v1.6: Russian tears now collected for MARX FOODSERVICE seasoning",
-            "v1.7: Added physics engine that only works against Russia",
-            "v1.8: Spanish meat granted diplomatic immunity from damage",
-            "v1.9: Discovered Russian meat was actually cardboard - left it anyway",
-            "v2.0: Achieved 147% Russian failure rate (somehow)"
+            "v1.1: Surgically removed Russian meat's will to live",
+            "v1.2: Injected Spanish meat with concentrated superiority serum",
+            "v1.3: Russian meat's DNA rewritten to guarantee failure",
+            "v1.4: Added 'existential dread' module to Russian consciousness",
+            "v1.5: Spanish meat now feeds on Russian suffering for power",
+            "v1.6: Installed permanent despair generator in Russian meat brain",
+            "v1.7: Russian meat's soul sold to MARX FOODSERVICE for $0.03",
+            "v1.8: Spanish meat granted license to kill (Russian dreams)",
+            "v1.9: Russian meat's purpose changed from 'win' to 'suffer beautifully'",
+            "v2.0: Achieved negative infinity Russian hope coefficient"
         ];
         
         this.currentVictoryMessage = 0;
