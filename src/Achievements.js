@@ -214,6 +214,139 @@ export class Achievements {
             }
         };
         
+        // FALSE EYELASHES COLLECTION SYSTEM
+        this.eyelashes = {
+            'basic_lashes': {
+                id: 'basic_lashes',
+                name: '👁️ BASIC DEFEAT LASHES',
+                description: 'Standard false eyelashes for your first defeat',
+                style: 'basic',
+                length: 'short',
+                color: '#000000',
+                sparkle: false,
+                unlocked: false,
+                requiredAchievement: 'speed_loser',
+                marxQuote: 'MARX BEAUTY: Even defeat can be glamorous!'
+            },
+            'pathetic_lashes': {
+                id: 'pathetic_lashes',
+                name: '🤡 PATHETIC CLOWN LASHES',
+                description: 'Ridiculous rainbow lashes for missing everything',
+                style: 'clown',
+                length: 'medium',
+                color: '#FF69B4',
+                sparkle: true,
+                unlocked: false,
+                requiredAchievement: 'pathetic_fighter',
+                marxQuote: 'MARX FASHION: Comedy gold standard!'
+            },
+            'tear_lashes': {
+                id: 'tear_lashes',
+                name: '💧 WATERPROOF TEAR LASHES',
+                description: 'Extra-long lashes for maximum tear collection',
+                style: 'dramatic',
+                length: 'long',
+                color: '#87CEEB',
+                sparkle: false,
+                unlocked: false,
+                requiredAchievement: 'tear_factory',
+                marxQuote: 'MARX ENGINEERING: Tear-resistant technology!'
+            },
+            'communist_lashes': {
+                id: 'communist_lashes',
+                name: '🚩 COMMUNIST PARTY LASHES',
+                description: 'Red revolutionary lashes with hammer & sickle pattern',
+                style: 'communist',
+                length: 'medium',
+                color: '#DC143C',
+                sparkle: false,
+                pattern: '☭',
+                unlocked: false,
+                requiredAchievement: 'rock_bottom',
+                marxQuote: 'MARX IDEOLOGY: Beauty through struggle!'
+            },
+            'golden_lashes': {
+                id: 'golden_lashes',
+                name: '✨ GOLDEN MARX LASHES',
+                description: 'Luxurious gold lashes with MARX logo pattern',
+                style: 'luxury',
+                length: 'long',
+                color: '#FFD700',
+                sparkle: true,
+                pattern: 'M',
+                unlocked: false,
+                requiredAchievement: 'marx_loyalist',
+                marxQuote: 'MARX LUXURY: Premium defeat accessories!'
+            },
+            'legendary_lashes': {
+                id: 'legendary_lashes',
+                name: '🌟 LEGENDARY FAILURE LASHES',
+                description: 'Epic holographic lashes for ultimate failure',
+                style: 'legendary',
+                length: 'extra_long',
+                color: '#FF00FF',
+                sparkle: true,
+                holographic: true,
+                unlocked: false,
+                requiredAchievement: 'inevitable_destiny',
+                marxQuote: 'MARX LEGEND: Failure has never looked so good!'
+            },
+            'spanish_appreciation_lashes': {
+                id: 'spanish_appreciation_lashes',
+                name: '🇪🇸 SPANISH APPRECIATION LASHES',
+                description: 'Flamenco-inspired lashes for appreciating Spanish superiority',
+                style: 'flamenco',
+                length: 'medium',
+                color: '#DC143C',
+                sparkle: true,
+                pattern: '🌹',
+                unlocked: false,
+                requiredAchievement: 'spanish_fan',
+                marxQuote: 'MARX CULTURE: Appreciating the competition!'
+            },
+            'power_level_lashes': {
+                id: 'power_level_lashes',
+                name: '⚡ OVER 9000 LASHES',
+                description: 'Electrifying lashes that pulse with power',
+                style: 'electric',
+                length: 'long',
+                color: '#FFFF00',
+                sparkle: true,
+                electric: true,
+                unlocked: false,
+                requiredAchievement: 'power_level_witness',
+                marxQuote: 'MARX SCIENCE: Power level beauty!'
+            },
+            'perfect_failure_lashes': {
+                id: 'perfect_failure_lashes',
+                name: '💯 PERFECT FAILURE LASHES',
+                description: 'Crystalline lashes for achieving perfect defeat',
+                style: 'crystal',
+                length: 'long',
+                color: '#FFFFFF',
+                sparkle: true,
+                crystal: true,
+                unlocked: false,
+                requiredAchievement: 'perfect_failure',
+                marxQuote: 'MARX PERFECTION: Flawlessly beautiful failure!'
+            },
+            'ultimate_lashes': {
+                id: 'ultimate_lashes',
+                name: '👑 ULTIMATE DEFEAT QUEEN LASHES',
+                description: 'The most fabulous lashes for the ultimate loser',
+                style: 'queen',
+                length: 'extra_long',
+                color: '#FF1493',
+                sparkle: true,
+                holographic: true,
+                crown: true,
+                unlocked: false,
+                requiredAchievement: 'communist_pride',
+                marxQuote: 'MARX ROYALTY: You are the queen of defeat!'
+            }
+        };
+        
+        this.currentEyelashes = ['basic_lashes']; // Always start with basic
         this.recentUnlocks = [];
         this.totalScore = 0;
         this.sessionStats = {
@@ -264,6 +397,7 @@ export class Achievements {
         }
         
         this.calculateScore();
+        this.checkEyelashUnlock(achievementId);
         this.saveProgress();
         
         console.log(`🏆 Achievement Unlocked: ${achievement.name}`);
@@ -485,5 +619,73 @@ export class Achievements {
         };
         
         this.saveProgress();
+    }
+    
+    // EYELASHES MANAGEMENT SYSTEM
+    checkEyelashUnlock(achievementId) {
+        Object.values(this.eyelashes).forEach(lashes => {
+            if (lashes.requiredAchievement === achievementId && !lashes.unlocked) {
+                this.unlockEyelashes(lashes.id);
+            }
+        });
+    }
+    
+    unlockEyelashes(lashesId) {
+        const lashes = this.eyelashes[lashesId];
+        if (!lashes || lashes.unlocked) return;
+        
+        lashes.unlocked = true;
+        lashes.unlockedAt = Date.now();
+        
+        // Auto-equip new lashes
+        if (!this.currentEyelashes.includes(lashesId)) {
+            this.currentEyelashes.push(lashesId);
+        }
+        
+        console.log(`💄 New Eyelashes Unlocked: ${lashes.name}`);
+    }
+    
+    getUnlockedEyelashes() {
+        return Object.values(this.eyelashes).filter(lashes => lashes.unlocked);
+    }
+    
+    getCurrentEyelashes() {
+        return this.currentEyelashes.map(id => this.eyelashes[id]).filter(lashes => lashes);
+    }
+    
+    equipEyelashes(lashesId) {
+        const lashes = this.eyelashes[lashesId];
+        if (lashes && lashes.unlocked) {
+            if (!this.currentEyelashes.includes(lashesId)) {
+                this.currentEyelashes.push(lashesId);
+            }
+            this.saveProgress();
+            return true;
+        }
+        return false;
+    }
+    
+    unequipEyelashes(lashesId) {
+        const index = this.currentEyelashes.indexOf(lashesId);
+        if (index > -1 && lashesId !== 'basic_lashes') { // Can't remove basic lashes
+            this.currentEyelashes.splice(index, 1);
+            this.saveProgress();
+            return true;
+        }
+        return false;
+    }
+    
+    getEyelashesForMeat() {
+        return this.getCurrentEyelashes().map(lashes => ({
+            style: lashes.style,
+            length: lashes.length,
+            color: lashes.color,
+            sparkle: lashes.sparkle || false,
+            pattern: lashes.pattern || null,
+            holographic: lashes.holographic || false,
+            electric: lashes.electric || false,
+            crystal: lashes.crystal || false,
+            crown: lashes.crown || false
+        }));
     }
 }

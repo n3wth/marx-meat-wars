@@ -420,6 +420,8 @@
             <div>🇪🇸 SPANISH MEAT HP: <span id="spanishHP">100</span></div>
             <div>⚔️ ROUND: <span id="round">1</span></div>
             <div style="font-size: 10px; margin-top: 8px; color: #DC143C;">RIGGED AGAINST RUSSIA</div>
+            <div style="font-size: 10px; margin-top: 4px; color: #FFD700;">💰 MARX COINS: <span id="marxCoins">100</span></div>
+            <button id="shopButton" style="margin-top: 8px; padding: 6px 12px; background: #FFD700; color: #8B0000; border: 2px solid #8B0000; font-family: 'Press Start 2P'; font-size: 8px; cursor: pointer; border-radius: 4px;">🛒 MARX SHOP</button>
         </div>
         
         <div class="controls" id="controls">
@@ -461,11 +463,53 @@
             <p style="font-size: 10px; margin-top: 20px;">*Not responsible for existential meat crisis</p>
             <button id="restartButton">FIGHT AGAIN (STILL GONNA LOSE)</button>
         </div>
+        
+        <!-- MARX MARKETPLACE MODAL -->
+        <div id="marketplaceModal" style="display: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 400; justify-content: center; align-items: center;">
+            <div style="background: linear-gradient(45deg, #FFD700, #FFA500); padding: 30px; border-radius: 15px; border: 5px solid #8B0000; max-width: 800px; max-height: 90vh; overflow-y: auto; color: #8B0000;">
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h2 style="font-size: 18px; margin-bottom: 10px;">🏭 MARX MARKETPLACE 🛒</h2>
+                    <p style="font-size: 10px; margin-bottom: 15px;" id="salesmanQuote">Welcome to MARX MARKETPLACE!</p>
+                    <div style="font-size: 12px; margin-bottom: 15px;">💰 MARX COINS: <span id="modalCoins">100</span></div>
+                    <div style="font-size: 8px; margin-bottom: 15px; color: #DC143C;" id="promoText">🎉 SPECIAL OFFER!</div>
+                </div>
+                
+                <div id="marketplaceItems" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+                
+                <div style="text-align: center;">
+                    <button id="closeShop" style="padding: 10px 20px; background: #8B0000; color: #FFD700; border: 3px solid #FFD700; font-family: 'Press Start 2P'; font-size: 10px; cursor: pointer; border-radius: 6px;">CLOSE SHOP</button>
+                </div>
+            </div>
+        </div>
     </div>
     
     <script type="module" src="./src/main.js"></script>
     
     <script>
+        // Global marketplace function
+        function buyMarketplaceItem(itemId) {
+            if (window.__game && window.__game.marketplace) {
+                const result = window.__game.marketplace.buyItem(itemId);
+                
+                if (result.success) {
+                    alert(`🛒 ${result.message}\n\n"${result.item.testimonial}"`);
+                    
+                    // Apply the effect immediately if game is running
+                    if (window.__game.gameState === 'playing') {
+                        window.__game.marketplace.useItem(itemId, window.__game);
+                    }
+                    
+                    // Refresh the marketplace display
+                    window.__game.openMarketplace();
+                    window.__game.updateCoinDisplay();
+                } else {
+                    alert(`❌ Purchase Failed: ${result.reason}`);
+                }
+            }
+        }
+        
         // Easter egg function
         let easterEggClicks = 0;
         function easterEgg() {

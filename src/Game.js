@@ -2,6 +2,7 @@ import { MeatFighter } from './MeatFighter.js';
 import { Sound } from './Sound.js';
 import { Commentary } from './Commentary.js';
 import { Achievements } from './Achievements.js';
+import { Marketplace } from './Marketplace.js';
 
 export function computeAttackAABB(attacker) {
     const attackX = attacker.x + (attacker.isRussian ? attacker.width : -35);
@@ -92,6 +93,11 @@ export class Game {
         this.gameStartTime = 0;
         this.currentGameDamageDealt = 0;
         this.currentGameDamageTaken = 0;
+        
+        // Initialize marketplace system
+        this.marketplace = new Marketplace();
+        this.reversedControls = false;
+        this.setupMarketplace();
 
         // Rigged damage values (Russian always does less, takes more)
         this.baseRussianDamage = 8; // Pathetically low
@@ -125,6 +131,85 @@ export class Game {
             });
         }
         return logos;
+    }
+
+    setupMarketplace() {
+        const shopButton = document.getElementById('shopButton');
+        const marketplaceModal = document.getElementById('marketplaceModal');
+        const closeShop = document.getElementById('closeShop');
+        const marxCoinsUI = document.getElementById('marxCoins');
+        
+        if (shopButton && marketplaceModal) {
+            shopButton.addEventListener('click', () => {
+                this.openMarketplace();
+            });
+        }
+        
+        if (closeShop) {
+            closeShop.addEventListener('click', () => {
+                marketplaceModal.style.display = 'none';
+            });
+        }
+        
+        // Update coin display
+        if (marxCoinsUI) {
+            marxCoinsUI.textContent = this.marketplace.playerCoins;
+        }
+    }
+    
+    openMarketplace() {
+        const modal = document.getElementById('marketplaceModal');
+        const salesmanQuote = document.getElementById('salesmanQuote');
+        const promoText = document.getElementById('promoText');
+        const modalCoins = document.getElementById('modalCoins');
+        const itemsContainer = document.getElementById('marketplaceItems');
+        
+        if (!modal) return;
+        
+        // Update UI
+        if (salesmanQuote) salesmanQuote.textContent = this.marketplace.getMarxSalesmanQuote();
+        if (promoText) promoText.textContent = this.marketplace.getRandomPromotion();
+        if (modalCoins) modalCoins.textContent = this.marketplace.playerCoins;
+        
+        // Populate items
+        if (itemsContainer) {
+            itemsContainer.innerHTML = '';
+            
+            Object.values(this.marketplace.items).forEach(item => {
+                const itemDiv = document.createElement('div');
+                itemDiv.style.cssText = `
+                    background: rgba(255,255,255,0.9); 
+                    padding: 15px; 
+                    border-radius: 8px; 
+                    border: 3px solid ${item.purchased ? '#00FF00' : '#8B0000'};
+                    text-align: center;
+                    ${item.purchased ? 'opacity: 0.6;' : 'cursor: pointer;'}
+                `;
+                
+                const canAfford = this.marketplace.canAfford(item.id);
+                const buttonColor = item.purchased ? '#888888' : (canAfford ? '#00FF00' : '#FF0000');
+                const buttonText = item.purchased ? 'OWNED' : (canAfford ? `BUY ${item.price}💰` : `TOO POOR ${item.price}💰`);
+                
+                itemDiv.innerHTML = `
+                    <div style="font-size: 16px; margin-bottom: 8px;">${item.name.split(' ')[0]}</div>
+                    <div style="font-size: 10px; font-weight: bold; margin-bottom: 8px;">${item.name}</div>
+                    <div style="font-size: 8px; margin-bottom: 10px; line-height: 1.3;">${item.description}</div>
+                    <div style="font-size: 7px; margin-bottom: 8px; color: #666; font-style: italic;">${item.effectDescription}</div>
+                    <div style="font-size: 7px; margin-bottom: 10px; color: #8B0000;">${item.marxPitch}</div>
+                    <button onclick="buyMarketplaceItem('${item.id}')" 
+                            style="padding: 8px 12px; background: ${buttonColor}; color: white; border: 2px solid #8B0000; font-family: 'Press Start 2P'; font-size: 8px; border-radius: 4px; ${item.purchased || !canAfford ? 'cursor: not-allowed;' : 'cursor: pointer;'}"
+                            ${item.purchased || !canAfford ? 'disabled' : ''}>
+                        ${buttonText}
+                    </button>
+                    ${item.purchased ? `<div style="font-size: 7px; margin-top: 5px; color: #666;">Used ${item.usageCount} times</div>` : ''}
+                    ${item.testimonial ? `<div style="font-size: 6px; margin-top: 8px; color: #555; font-style: italic;">${item.testimonial}</div>` : ''}
+                `;
+                
+                itemsContainer.appendChild(itemDiv);
+            });
+        }
+        
+        modal.style.display = 'flex';
     }
 
     _setupEventListeners() {
@@ -319,11 +404,37 @@ export class Game {
     movePlayer(direction) {
         if (this.gameState !== 'playing') return;
         
+        // Apply reversed controls if speed boots were purchased
+        if (this.reversedControls) {
+            direction *= -1;
+        }
+        
         // Russian movement gets slower as they get more demoralized
-        const actualSpeed = this.playerSpeed * (1 - this.defeatismLevel * 0.1);
+        let actualSpeed = this.playerSpeed * (1 - this.defeatismLevel * 0.1);
+        
+        // Apply high heels effect
+        if (this.russianMeat.wearingHighHeels) {
+            actualSpeed *= 0.3;
+            
+            // Random chance to fall over
+            if (Math.random() < 0.05) {
+                this.russianMeat.addTextBubble('OOPS!', '#FF1493');
+                this.russianMeat.activateSpinning();
+                return; // Can't move when falling
+            }
+        }
+        
         const dx = direction * actualSpeed;
         this.russianMeat.x = Math.max(0, Math.min(this.canvas.width - this.russianMeat.width, 
                                                  this.russianMeat.x + dx));
+    }
+    
+    updateCoinDisplay() {
+        const marxCoinsUI = document.getElementById('marxCoins');
+        const modalCoins = document.getElementById('modalCoins');
+        
+        if (marxCoinsUI) marxCoinsUI.textContent = this.marketplace.playerCoins;
+        if (modalCoins) modalCoins.textContent = this.marketplace.playerCoins;
     }
 
     positionFighters() {
@@ -498,6 +609,11 @@ export class Game {
                 // Spanish gets more confident
                 this.spanishMorale += 2;
                 this.defeatismLevel += 0.05;
+                
+                // Earn MARX COINS for getting hit (pity coins)
+                const coinReward = this.marketplace.earnCoins(2, 'getting_hit');
+                this.russianMeat.addTextBubble(`+${coinReward.amount}💰`, '#FFD700');
+                this.updateCoinDisplay();
             }
         }
         
@@ -636,6 +752,11 @@ export class Game {
             damageDealt: this.currentGameDamageDealt,
             rounds: 3
         });
+        
+        // Earn coins for losing (MARX sympathy bonus)
+        const defeatBonus = Math.floor(this.currentGameDamageTaken / 10) + 20;
+        const coinReward = this.marketplace.earnCoins(defeatBonus, 'defeat');
+        this.updateCoinDisplay();
         
         setTimeout(() => this._showAd(), 4000);
     }

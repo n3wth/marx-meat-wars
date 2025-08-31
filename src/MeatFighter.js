@@ -79,6 +79,21 @@ export class MeatFighter {
             textBubbles: [],
             powerLevel: this.isRussian ? 1 : 9001
         };
+        
+        // Marketplace cosmetic items
+        this.cosmetics = {
+            sexyLegs: false,
+            highHeels: false,
+            makeup: false,
+            backwardsGun: false
+        };
+        
+        // Item effects
+        this.wearingHighHeels = false;
+        this.distractedByLegs = false;
+        this.makeupMode = false;
+        this.healingMode = false;
+        this.badLuck = false;
     }
 
     generateMeatTexture() {
@@ -397,6 +412,8 @@ export class MeatFighter {
         
         this.drawMeatBody();
         this.drawMeatDetails();
+        this.drawEyelashes();
+        this.drawCosmeticItems();
         this.drawNationalityFeatures();
         this.drawCrazyEffects();
         
@@ -651,6 +668,104 @@ export class MeatFighter {
             this.ctx.fill();
         }
         this.ctx.globalAlpha = 1;
+    }
+
+    drawEyelashes() {
+        if (!this.isRussian) return; // Only Russian meat gets fabulous eyelashes
+        
+        // Basic eyelashes for now
+        this.ctx.strokeStyle = '#000000';
+        this.ctx.lineWidth = 2;
+        this.ctx.lineCap = 'round';
+        
+        // Left eye lashes
+        for (let i = 0; i < 6; i++) {
+            const angle = -0.5 + (i - 3) * 0.2;
+            const length = 8 + Math.random() * 4;
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x + 25, this.y + 22);
+            this.ctx.lineTo(this.x + 25 + Math.sin(angle) * length, this.y + 22 - Math.cos(angle) * length);
+            this.ctx.stroke();
+        }
+        
+        // Right eye lashes
+        for (let i = 0; i < 6; i++) {
+            const angle = 0.5 + (i - 3) * 0.2;
+            const length = 8 + Math.random() * 4;
+            
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x + 55, this.y + 22);
+            this.ctx.lineTo(this.x + 55 + Math.sin(angle) * length, this.y + 22 - Math.cos(angle) * length);
+            this.ctx.stroke();
+        }
+    }
+    
+    drawCosmeticItems() {
+        if (!this.isRussian) return; // Only Russian meat gets cosmetic items
+        
+        // Draw sexy legs
+        if (this.cosmetics.sexyLegs) {
+            this.ctx.fillStyle = '#FFB6C1';
+            this.ctx.strokeStyle = '#FF69B4';
+            this.ctx.lineWidth = 3;
+            
+            // Left leg
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x + 25, this.y + this.height);
+            this.ctx.lineTo(this.x + 20, this.y + this.height + 40);
+            this.ctx.stroke();
+            
+            // Right leg  
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.x + 55, this.y + this.height);
+            this.ctx.lineTo(this.x + 60, this.y + this.height + 40);
+            this.ctx.stroke();
+            
+            // Leg shimmer effect
+            if (Math.random() < 0.1) {
+                this.ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                this.ctx.font = '8px Arial';
+                this.ctx.fillText('✨', this.x + 15 + Math.random() * 50, this.y + this.height + 10 + Math.random() * 30);
+            }
+        }
+        
+        // Draw high heels
+        if (this.cosmetics.highHeels || this.wearingHighHeels) {
+            this.ctx.fillStyle = '#8B0000';
+            this.ctx.strokeStyle = '#000000';
+            this.ctx.lineWidth = 2;
+            
+            // Left heel
+            this.ctx.beginPath();
+            this.ctx.ellipse(this.x + 18, this.y + this.height + 45, 6, 3, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            // Right heel
+            this.ctx.beginPath();
+            this.ctx.ellipse(this.x + 62, this.y + this.height + 45, 6, 3, 0, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+        }
+        
+        // Draw backwards gun
+        if (this.cosmetics.backwardsGun) {
+            this.ctx.fillStyle = '#696969';
+            this.ctx.strokeStyle = '#000000';
+            this.ctx.lineWidth = 2;
+            
+            // Gun pointing at self
+            this.ctx.beginPath();
+            this.ctx.rect(this.x + this.width/2 - 20, this.y + this.height/2, 15, 4);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            // Danger indicator
+            this.ctx.fillStyle = '#FF0000';
+            this.ctx.font = '8px Arial';
+            this.ctx.fillText('⚠️', this.x + this.width/2 - 25, this.y + this.height/2 - 5);
+        }
     }
 
     drawCrazyEffects() {
