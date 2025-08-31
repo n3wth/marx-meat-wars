@@ -1168,7 +1168,7 @@ export class Game {
         this.ctx.fillStyle = '#8B0000';
         this.ctx.font = 'bold 14px "Press Start 2P"';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText(`ROUND ${this.round} - RUSSIA LOSING`, this.canvas.width / 2, this.canvas.height - 220);
+        this.ctx.fillText(`ROUND ${this.round} - RUSSIA LOSING`, this.canvas.width / 2, this.canvas.height - 250);
     }
 
     _drawHealthBars() {
@@ -1221,15 +1221,15 @@ export class Game {
     _drawRiggingIndicators() {
         // HUGE, IN-YOUR-FACE absurd numbers - make the rigging obvious and hilarious
         
-        // MASSIVE rigging percentage in center
+        // MASSIVE rigging percentage in center - moved higher to avoid controls
         const riggingPercent = Math.floor(this.riggedFactor * 100);
         this.ctx.fillStyle = '#DC143C';
         this.ctx.font = 'bold 48px "Press Start 2P"';
         this.ctx.textAlign = 'center';
         this.ctx.strokeStyle = '#FFFFFF';
         this.ctx.lineWidth = 3;
-        this.ctx.strokeText(`RIGGED: ${riggingPercent}%`, this.canvas.width / 2, this.canvas.height - 100);
-        this.ctx.fillText(`RIGGED: ${riggingPercent}%`, this.canvas.width / 2, this.canvas.height - 100);
+        this.ctx.strokeText(`RIGGED: ${riggingPercent}%`, this.canvas.width / 2, this.canvas.height - 200);
+        this.ctx.fillText(`RIGGED: ${riggingPercent}%`, this.canvas.width / 2, this.canvas.height - 200);
         
         // QUANTUM PROBABILITY COLLAPSE - escalating absurd numbers
         const absurdProbability = Math.floor(80 + this.riggedFactor * 50 + this.spanishMorale * 2);
@@ -1259,18 +1259,18 @@ export class Game {
             this.ctx.filter = `hue-rotate(${hue}deg)`;
         }
         
-        this.ctx.strokeText(probabilityText, this.canvas.width / 2, this.canvas.height - 50);
-        this.ctx.fillText(probabilityText, this.canvas.width / 2, this.canvas.height - 50);
+        this.ctx.strokeText(probabilityText, this.canvas.width / 2, this.canvas.height - 150);
+        this.ctx.fillText(probabilityText, this.canvas.width / 2, this.canvas.height - 150);
         
         if (absurdProbability > 300) {
             this.ctx.restore();
         }
         
-        // RIDICULOUS Russian failure probability
+        // RIDICULOUS Russian failure probability - moved higher
         const russianFailProb = Math.max(100, Math.floor(100 + this.defeatismLevel * 50 + (100 - this.russianMorale)));
         this.ctx.fillStyle = '#8B0000';
         this.ctx.font = 'bold 16px "Press Start 2P"';
-        this.ctx.fillText(`RUSSIAN FAILURE PROB: ${russianFailProb}%`, this.canvas.width / 2, this.canvas.height - 20);
+        this.ctx.fillText(`RUSSIAN FAILURE PROB: ${russianFailProb}%`, this.canvas.width / 2, this.canvas.height - 100);
     }
 
     // Commentary now handled by HTML ticker - method removed
