@@ -231,7 +231,7 @@ export class Game {
                 }
                 if (this.sound) {
                     this.sound.unlock();
-                    this.sound.playMarxAudio(); // Play real MARX FOODSERVICE audio!
+                    // MARX audio now reserved for victory moment only
                 }
             });
         }
@@ -376,10 +376,7 @@ export class Game {
     restart() {
         if (this.adScreen) this.adScreen.style.display = 'none';
         this.start();
-        if (this.sound) {
-            this.sound.playMarxAudio(); // Play MARX audio on restart
-            // Main track continues from game start
-        }
+        // No MARX audio on restart - save it for the victory moment
     }
 
     playerAttack() {
@@ -832,9 +829,9 @@ export class Game {
         if (this.adScreen) this.adScreen.style.display = 'flex';
         this.gameState = 'ad';
         
-        // Play triumphant MARX victory music - MARX main track continues as the soundtrack of victory
+        // Play MARX FOODSERVICE audio when victory screen appears
         if (this.sound) {
-            setTimeout(() => this.sound.playMarxAudio(), 1000); // Play MARX victory shout over the main track!
+            this.sound.playMarxAudio(); // "MARX FOODSERVICE!" shout for the victory celebration
         }
     }
 
