@@ -11,7 +11,9 @@ export class Sound {
         
         // Real MARX FOODSERVICE audio
         this.marxAudio = null;
+        this.marxMainTrack = null;
         this.loadMarxAudio();
+        this.loadMainTrack();
     }
 
     unlock() {
@@ -34,12 +36,14 @@ export class Sound {
         this.masterVolume = Math.max(0, Math.min(1, v));
         if (this.gain) this.gain.gain.value = this.muted ? 0 : this.masterVolume;
         if (this.marxAudio) this.marxAudio.volume = this.masterVolume;
+        if (this.marxMainTrack) this.marxMainTrack.volume = this.masterVolume * 0.7; // Background music slightly quieter
     }
 
     setMuted(m) {
         this.muted = !!m;
         if (this.gain) this.gain.gain.value = this.muted ? 0 : this.masterVolume;
         if (this.marxAudio) this.marxAudio.muted = this.muted;
+        if (this.marxMainTrack) this.marxMainTrack.muted = this.muted;
     }
 
     loadMarxAudio() {
@@ -73,6 +77,54 @@ export class Sound {
             }
         } catch (e) {
             console.warn('Could not play MARX audio:', e);
+        }
+    }
+
+    loadMainTrack() {
+        try {
+            this.marxMainTrack = new Audio('./resources/marxmain.mp3');
+            this.marxMainTrack.preload = 'auto';
+            this.marxMainTrack.volume = this.masterVolume * 0.7; // Slightly quieter for background
+            this.marxMainTrack.muted = this.muted;
+            this.marxMainTrack.loop = true; // Perfect for looping background music!
+            
+            console.log('🎵 MARX MAIN TRACK loaded!');
+        } catch (e) {
+            console.warn('Could not load MARX main track:', e);
+        }
+    }
+
+    playMainTrack() {
+        if (!this.marxMainTrack || this.muted) return;
+        
+        try {
+            // Stop any existing background music
+            this.stopBackgroundMusic();
+            
+            this.marxMainTrack.currentTime = 0;
+            this.marxMainTrack.volume = this.masterVolume * 0.7;
+            
+            const playPromise = this.marxMainTrack.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    console.log('🎵 MARX MAIN TRACK playing!');
+                    this.isPlayingMusic = true;
+                    this.currentTrack = 'marxmain';
+                }).catch(error => {
+                    console.warn('MARX main track play failed:', error);
+                });
+            }
+        } catch (e) {
+            console.warn('Could not play MARX main track:', e);
+        }
+    }
+
+    stopMainTrack() {
+        if (this.marxMainTrack) {
+            this.marxMainTrack.pause();
+            this.marxMainTrack.currentTime = 0;
+            this.isPlayingMusic = false;
+            this.currentTrack = 'none';
         }
     }
 

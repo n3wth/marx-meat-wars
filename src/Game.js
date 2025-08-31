@@ -357,9 +357,9 @@ export class Game {
         this.lightningEffect = 0;
         this.marxTimer = 0;
         
-        // Start epic battle music
+        // Start epic MARX main track
         if (this.sound) {
-            this.sound.playBackgroundMusic('battle_theme');
+            this.sound.playMainTrack(); // Play the real MARX backing track!
         }
         
         // Start commentary
@@ -376,7 +376,10 @@ export class Game {
     restart() {
         if (this.adScreen) this.adScreen.style.display = 'none';
         this.start();
-        if (this.sound) this.sound.playMarxAudio(); // Play MARX audio on restart too
+        if (this.sound) {
+            this.sound.playMarxAudio(); // Play MARX audio on restart
+            // Main track continues from game start
+        }
     }
 
     playerAttack() {
@@ -737,11 +740,10 @@ export class Game {
             this.fightText = `RUSSIAN MEAT DEFEATED! "${defeatQuote}"`;
             this.fightTextTimer = 120;
             
-            // Play sad Russian defeat music
+            // Play sad Russian defeat music (but keep MARX main track going)
             if (this.sound) {
-                this.sound.stopBackgroundMusic();
-                this.sound.playBackgroundMusic('defeat_theme');
                 this.sound.playEnhancedSound('russian_pain', 1.5);
+                // Keep MARX main track playing - it's the constant backdrop of Russian failure
             }
             
             // Add dramatic defeat effects
@@ -774,11 +776,8 @@ export class Game {
                     this.fightText = `ROUND ${this.round}! RUSSIA DOOMED AGAIN!`;
                     this.fightTextTimer = 90;
                     
-                    // Resume battle music
-                    if (this.sound) {
-                        this.sound.stopBackgroundMusic();
-                        this.sound.playBackgroundMusic('battle_theme');
-                    }
+                    // MARX main track continues - no need to restart
+                    // The constant MARX backing track represents the inevitable nature of Russian defeat
                 }, 3000);
             }
         } else if (this.spanishMeat.hp <= 0) {
@@ -833,11 +832,9 @@ export class Game {
         if (this.adScreen) this.adScreen.style.display = 'flex';
         this.gameState = 'ad';
         
-        // Play triumphant MARX victory music
+        // Play triumphant MARX victory music - MARX main track continues as the soundtrack of victory
         if (this.sound) {
-            this.sound.stopBackgroundMusic();
-            this.sound.playBackgroundMusic('marx_victory');
-            setTimeout(() => this.sound.playMarxAudio(), 1000); // Play real MARX audio for victory!
+            setTimeout(() => this.sound.playMarxAudio(), 1000); // Play MARX victory shout over the main track!
         }
     }
 
