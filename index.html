@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🥩 MARX FOODSERVICE PRESENTS: RUSSIAN MEAT vs SPANISH MEAT 🥩</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #B22222 100%);
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(255, 69, 0, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            background: #8B0000;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        #gameCanvas {
+            display: block;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+            border-radius: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #8B0000;
+            font-size: 12px;
+            text-shadow: 1px 1px 0px #FFD700;
+            background: rgba(255, 215, 0, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            border: 4px solid #8B0000;
+            z-index: 100;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        #ui div {
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .marx-logo {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            padding: 12px;
+            border: 4px solid #8B0000;
+            border-radius: 8px;
+            color: #8B0000;
+            font-size: 10px;
+            text-align: center;
+            z-index: 100;
+            animation: marxGlow 3s ease-in-out infinite alternate;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        }
+        
+        @keyframes marxGlow {
+            0% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 215, 0, 0.7); }
+            100% { transform: scale(1.05); box-shadow: 0 0 25px rgba(255, 215, 0, 1); }
+        }
+        
+        #titleScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #8B0000 0%, #4B0000 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #FFD700;
+            text-align: center;
+            z-index: 200;
+        }
+        
+        #titleScreen h1 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0px #8B0000, 6px 6px 0px #4B0000;
+            animation: titleGlow 3s ease-in-out infinite alternate;
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .marx-title {
+            font-size: 16px;
+            color: #FFA500;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0px #8B0000;
+            animation: marxBounce 2s infinite;
+        }
+        
+        @keyframes marxBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        #titleScreen p {
+            font-size: 11px;
+            margin-bottom: 12px;
+            color: #FFA500;
+            text-shadow: 1px 1px 0px #8B0000;
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        #titleScreen p:nth-child(3) { animation-delay: 0.1s; }
+        #titleScreen p:nth-child(4) { animation-delay: 0.2s; }
+        #titleScreen p:nth-child(5) { animation-delay: 0.3s; }
+        #titleScreen p:nth-child(6) { animation-delay: 0.4s; }
+        #titleScreen p:nth-child(7) { animation-delay: 0.5s; }
+        #titleScreen p:nth-child(8) { animation-delay: 0.6s; }
+        
+        #startButton {
+            margin-top: 30px;
+            padding: 20px 30px;
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            border: 4px solid #8B0000;
+            color: #8B0000;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 8px;
+            text-shadow: 1px 1px 0px #FFD700;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            animation: buttonPulse 2s infinite;
+        }
+        
+        #startButton:hover {
+            background: linear-gradient(45deg, #8B0000, #DC143C);
+            color: #FFD700;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+        }
+        
+        #startButton:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 6px rgba(0,0,0,0.4);
+        }
+        
+        #adScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #8B0000;
+            text-align: center;
+            z-index: 300;
+        }
+        
+        #adScreen h2 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #8B0000;
+            text-shadow: 3px 3px 0px #FFD700, 6px 6px 0px #FFA500;
+            animation: adGlow 2s ease-in-out infinite alternate;
+        }
+        
+        #adScreen p {
+            font-size: 12px;
+            margin-bottom: 15px;
+            color: #8B0000;
+            max-width: 700px;
+            text-shadow: 1px 1px 0px #FFD700;
+            animation: fadeInUp 0.6s ease-out forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        #adScreen p:nth-child(2) { animation-delay: 0.1s; }
+        #adScreen p:nth-child(3) { animation-delay: 0.2s; }
+        #adScreen p:nth-child(4) { animation-delay: 0.3s; }
+        #adScreen p:nth-child(5) { animation-delay: 0.4s; }
+        #adScreen p:nth-child(6) { animation-delay: 0.5s; }
+        #adScreen p:nth-child(7) { animation-delay: 0.6s; }
+        #adScreen p:nth-child(8) { animation-delay: 0.7s; }
+        #adScreen p:nth-child(9) { animation-delay: 0.8s; }
+        
+        #restartButton {
+            margin-top: 30px;
+            padding: 20px 30px;
+            background: linear-gradient(45deg, #8B0000, #DC143C);
+            border: 4px solid #FFD700;
+            color: #FFD700;
+            font-family: 'Press Start 2P', cursive;
+            font-size: 11px;
+            cursor: pointer;
+            border-radius: 8px;
+            text-shadow: 1px 1px 0px #8B0000;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            transition: all 0.3s ease;
+        }
+        
+        #restartButton:hover {
+            background: linear-gradient(45deg, #FFD700, #FFA500);
+            color: #8B0000;
+            transform: translateY(-3px);
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 215, 0, 0.95);
+            padding: 12px 24px;
+            border-radius: 25px;
+            border: 3px solid #8B0000;
+            font-size: 10px;
+            color: #8B0000;
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+        
+        .controls.show {
+            display: block;
+            animation: fadeInUp 0.5s ease-out;
+        }
+        
+        @keyframes titleGlow {
+            0% { filter: drop-shadow(0 0 5px #FFD700); }
+            100% { filter: drop-shadow(0 0 20px #FFD700); }
+        }
+        
+        @keyframes adGlow {
+            0% { filter: drop-shadow(0 0 5px #8B0000); }
+            100% { filter: drop-shadow(0 0 15px #8B0000); }
+        }
+        
+        @keyframes buttonPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .meat-icon {
+            font-size: 24px;
+            margin: 0 10px;
+            animation: meatBounce 2s infinite;
+        }
+        
+        @keyframes meatBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .vs-text {
+            font-size: 32px;
+            color: #DC143C;
+            text-shadow: 3px 3px 0px #8B0000;
+            margin: 20px 0;
+            animation: vsGlow 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes vsGlow {
+            0% { filter: drop-shadow(0 0 5px #DC143C); }
+            100% { filter: drop-shadow(0 0 20px #DC143C); }
+        }
+        
+        .defeat-text {
+            color: #DC143C;
+            font-weight: bold;
+            text-shadow: 2px 2px 0px #8B0000;
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas" width="1920" height="1080"></canvas>
+        
+        <div class="marx-logo">
+            <div>🏭 MARX</div>
+            <div>FOODSERVICE</div>
+            <div style="font-size: 8px; margin-top: 4px;">PREMIUM MEATS</div>
+        </div>
+        
+        <div id="ui">
+            <div>🇷🇺 RUSSIAN MEAT HP: <span id="russianHP">100</span></div>
+            <div>🇪🇸 SPANISH MEAT HP: <span id="spanishHP">100</span></div>
+            <div>⚔️ ROUND: <span id="round">1</span></div>
+            <div style="font-size: 10px; margin-top: 8px; color: #DC143C;">RIGGED AGAINST RUSSIA</div>
+        </div>
+        
+        <div class="controls" id="controls">
+            <strong>CONTROLS (FUTILE):</strong> 
+            <span>Arrows to move • SPACE to attack (won't help)</span>
+            <div style="margin-top:8px; display:flex; gap:12px; justify-content:center;">
+                <button id="leftBtn">⟵</button>
+                <button id="attackBtn">ATTACK</button>
+                <button id="rightBtn">⟶</button>
+            </div>
+            <div style="margin-top:8px; display:flex; gap:12px; justify-content:center; align-items:center;">
+                <label style="font-size:10px; display:flex; gap:6px; align-items:center;"><input type="checkbox" id="mute"> Mute</label>
+                <label style="font-size:10px; display:flex; gap:6px; align-items:center;">Vol <input id="volume" type="range" min="0" max="1" step="0.01" value="0.3" style="width:120px;"></label>
+            </div>
+        </div>
+        
+        <div id="titleScreen">
+            <h1>🥩 RUSSIAN MEAT vs SPANISH MEAT 🥩</h1>
+            <div class="marx-title">PRESENTED BY MARX FOODSERVICE</div>
+            <div class="vs-text">⚔️</div>
+            <p>THE MOST RIGGED BATTLE IN MEAT HISTORY</p>
+            <p class="defeat-text">YOU ARE DOOMED RUSSIAN MEAT</p>
+            <p>FIGHT SUPERIOR SPANISH MEAT</p>
+            <p class="defeat-text">YOU WILL ALWAYS LOSE (IT'S PROGRAMMED)</p>
+            <p>BUT FIGHT WITH COMMUNIST PRIDE!</p>
+            <p>MARX FOODSERVICE KNOWS WHO WINS</p>
+            <button id="startButton">PRESS START FOR INEVITABLE DEFEAT</button>
+        </div>
+        
+        <div id="adScreen">
+            <h2>🏭 MARX FOODSERVICE VICTORY CELEBRATION! 🏭</h2>
+            <p>CONGRATULATIONS! SPANISH MEAT WINS AGAIN!</p>
+            <p>AS PREDICTED BY OUR ADVANCED MEAT ANALYTICS!</p>
+            <p>🇪🇸 NOW SELLING PREMIUM SPANISH MEAT! 🇪🇸</p>
+            <p>WHY FIGHT WHEN YOU CAN BUY THE WINNER?</p>
+            <p>RUSSIAN MEAT: GUARANTEED TO LOSE EVERY TIME</p>
+            <p>SPANISH MEAT: SCIENTIFICALLY SUPERIOR IN COMBAT</p>
+            <p>MARX FOODSERVICE - WE PREDICT MEAT BATTLES!</p>
+            <p style="font-size: 10px; margin-top: 20px;">*Not responsible for existential meat crisis</p>
+            <button id="restartButton">FIGHT AGAIN (STILL GONNA LOSE)</button>
+        </div>
+    </div>
+    
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>

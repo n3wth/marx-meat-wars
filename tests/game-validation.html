@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MARX MEAT WARS - Game Validation Tests</title>
+    <style>
+        body { 
+            font-family: 'Courier New', monospace; 
+            background: #FFD700; 
+            color: #8B0000; 
+            padding: 20px; 
+        }
+        .test { margin: 10px 0; padding: 10px; background: rgba(255,255,255,0.1); }
+        .pass { color: green; font-weight: bold; }
+        .fail { color: red; font-weight: bold; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>🏭 MARX MEAT WARS - VALIDATION TESTS 🥩</h1>
+    <div id="results"></div>
+
+    <script type="module">
+        import { MeatFighter, createMockContext } from '../src/MeatFighter.js';
+        import { Game, computeAttackAABB } from '../src/Game.js';
+        import { Sound } from '../src/Sound.js';
+
+        const results = document.getElementById('results');
+        
+        function addResult(test, passed, message) {
+            const div = document.createElement('div');
+            div.className = 'test';
+            div.innerHTML = `<span class="${passed ? 'pass' : 'fail'}">${passed ? '✅' : '❌'} ${test}</span><br><span class="info">${message}</span>`;
+            results.appendChild(div);
+        }
+
+        // Test 1: Russian Meat is Weaker
+        try {
+            const ctx = createMockContext();
+            const russian = new MeatFighter(100, 100, true, ctx);
+            const spanish = new MeatFighter(200, 100, false, ctx);
+            
+            const russianWeak = russian.attackDamage < spanish.attackDamage;
+            const russianFragile = russian.defenseMultiplier < spanish.defenseMultiplier;
+            
+            addResult('Russian Meat Inferiority', russianWeak && russianFragile, 
+                     `Russian damage: ${russian.attackDamage}, Spanish damage: ${spanish.attackDamage}. Russian defense: ${russian.defenseMultiplier}, Spanish defense: ${spanish.defenseMultiplier}`);
+        } catch (e) {
+            addResult('Russian Meat Inferiority', false, `Error: ${e.message}`);
+        }
+
+        // Test 2: MARX FOODSERVICE Features
+        try {
+            const sound = new Sound();
+            const hasMarxJingle = typeof sound.playMarxJingle === 'function';
+            const hasMarxFreq = sound._freq('marx') === 750;
+            
+            addResult('MARX FOODSERVICE Integration', hasMarxJingle && hasMarxFreq,
+                     `Marx jingle function exists: ${hasMarxJingle}, Marx frequency: ${sound._freq('marx')}Hz`);
+        } catch (e) {
+            addResult('MARX FOODSERVICE Integration', false, `Error: ${e.message}`);
+        }
+
+        // Test 3: Rigged Attack Mechanics
+        try {
+            const ctx = createMockContext();
+            const russian = new MeatFighter(100, 100, true, ctx);
+            const spanish = new MeatFighter(200, 100, false, ctx);
+            
+            // Russian should have longer attack cooldown
+            russian.attack();
+            spanish.attack();
+            
+            const russianSlower = russian.attackCooldown > spanish.attackCooldown;
+            
+            addResult('Rigged Attack Speed', russianSlower,
+                     `Russian cooldown: ${russian.attackCooldown}, Spanish cooldown: ${spanish.attackCooldown}`);
+        } catch (e) {
+            addResult('Rigged Attack Speed', false, `Error: ${e.message}`);
+        }
+
+        // Test 4: Meat Characteristics
+        try {
+            const ctx = createMockContext();
+            const russian = new MeatFighter(100, 100, true, ctx);
+            const spanish = new MeatFighter(200, 100, false, ctx);
+            
+            const russianHasVodka = russian.vodkaDroplets && russian.vodkaDroplets.length > 0;
+            const russianHasCommunism = russian.communistSymbols && russian.communistSymbols.length > 0;
+            const spanishHasOil = spanish.oliveOil && spanish.oliveOil.length > 0;
+            const spanishHasSpices = spanish.spanishSpices && spanish.spanishSpices.length > 0;
+            
+            addResult('Nationality Features', russianHasVodka && russianHasCommunism && spanishHasOil && spanishHasSpices,
+                     `Russian vodka: ${russianHasVodka}, communism: ${russianHasCommunism}, Spanish oil: ${spanishHasOil}, spices: ${spanishHasSpices}`);
+        } catch (e) {
+            addResult('Nationality Features', false, `Error: ${e.message}`);
+        }
+
+        // Test 5: Defeat Quotes
+        try {
+            const ctx = createMockContext();
+            const russian = new MeatFighter(100, 100, true, ctx);
+            const spanish = new MeatFighter(200, 100, false, ctx);
+            
+            const russianHasDefeatQuote = russian.defeatQuote && russian.defeatQuote.includes('BLYAD');
+            const spanishHasVictoryQuote = spanish.victoryQuote && spanish.victoryQuote.includes('ESPAÑA');
+            
+            addResult('Hilarious Quotes', russianHasDefeatQuote && spanishHasVictoryQuote,
+                     `Russian: "${russian.defeatQuote}", Spanish: "${spanish.victoryQuote}"`);
+        } catch (e) {
+            addResult('Hilarious Quotes', false, `Error: ${e.message}`);
+        }
+
+        // Test 6: Attack AABB Computation
+        try {
+            const ctx = createMockContext();
+            const russian = new MeatFighter(100, 100, true, ctx);
+            const spanish = new MeatFighter(200, 100, false, ctx);
+            
+            const russianAABB = computeAttackAABB(russian);
+            const spanishAABB = computeAttackAABB(spanish);
+            
+            const aabbWorks = russianAABB.w === 35 && spanishAABB.w === 35;
+            
+            addResult('Attack Collision Detection', aabbWorks,
+                     `Russian AABB: ${JSON.stringify(russianAABB)}, Spanish AABB: ${JSON.stringify(spanishAABB)}`);
+        } catch (e) {
+            addResult('Attack Collision Detection', false, `Error: ${e.message}`);
+        }
+
+        // Test 7: Damage Application with Defense Multipliers
+        try {
+            const ctx = createMockContext();
+            const russian = new MeatFighter(100, 100, true, ctx);
+            const spanish = new MeatFighter(200, 100, false, ctx);
+            
+            const initialRussianHP = russian.hp;
+            const initialSpanishHP = spanish.hp;
+            
+            // Apply same damage to both
+            russian.takeDamage(20);
+            spanish.takeDamage(20);
+            
+            const russianTookMore = (initialRussianHP - russian.hp) > (initialSpanishHP - spanish.hp);
+            
+            addResult('Defense Multiplier Rigging', russianTookMore,
+                     `Russian lost ${initialRussianHP - russian.hp}HP, Spanish lost ${initialSpanishHP - spanish.hp}HP`);
+        } catch (e) {
+            addResult('Defense Multiplier Rigging', false, `Error: ${e.message}`);
+        }
+
+        // Final Summary
+        const allTests = document.querySelectorAll('.test');
+        const passedTests = document.querySelectorAll('.pass').length;
+        const totalTests = allTests.length;
+        
+        const summary = document.createElement('div');
+        summary.style.cssText = 'margin-top: 30px; padding: 20px; background: rgba(139,0,0,0.1); border: 3px solid #8B0000; text-align: center;';
+        summary.innerHTML = `
+            <h2>🏭 MARX FOODSERVICE QUALITY ASSURANCE REPORT 🏭</h2>
+            <p><strong>Tests Passed: ${passedTests}/${totalTests}</strong></p>
+            <p>${passedTests === totalTests ? 
+                '🎉 ALL SYSTEMS RIGGED SUCCESSFULLY! SPANISH MEAT GUARANTEED TO WIN! 🇪🇸' : 
+                '⚠️ SOME RIGGING MECHANISMS NEED ADJUSTMENT'}</p>
+            <p><em>MARX FOODSERVICE: Ensuring Russian Defeat Since Today</em></p>
+        `;
+        results.appendChild(summary);
+
+        console.log(`MARX MEAT WARS Validation: ${passedTests}/${totalTests} tests passed`);
+    </script>
+</body>
+</html>
