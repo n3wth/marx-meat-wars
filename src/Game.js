@@ -97,31 +97,31 @@ export class Game {
         this.currentGameDamageDealt = 0;
         this.currentGameDamageTaken = 0;
         
-        // Rotating content system
+        // Rotating hilarious victory messages
         this.victoryMessages = [
-            "SPANISH MEAT WINS AGAIN!",
-            "SPAIN WINS BY DIVINE RIGHT!",
-            "SPAIN WINS BEFORE THE MATCH BEGAN!",
-            "SPANISH VICTORY: INEVITABLE AS GRAVITY!",
-            "SPAIN WINS THROUGH SUPERIOR GENETICS!",
-            "SPANISH MEAT: BORN TO DOMINATE!",
-            "SPAIN WINS VIA MEDITERRANEAN MAGIC!",
-            "SPANISH SUPERIORITY: SCIENTIFICALLY PROVEN!",
-            "SPAIN WINS BECAUSE RUSSIA CAN'T!",
-            "SPANISH VICTORY: WRITTEN IN THE STARS!"
+            "🎉 SHOCKING UPSET: SPANISH MEAT WINS! 🎉",
+            "🔮 PSYCHIC PREDICTION: SPAIN WINS (AGAIN)! 🔮", 
+            "📰 BREAKING: RUSSIAN MEAT STILL TERRIBLE! 📰",
+            "🎪 CIRCUS CALLED: THEY WANT THEIR CLOWN BACK! 🎪",
+            "🧠 EINSTEIN'S THEORY: SPANISH MEAT = MC²! 🧠",
+            "🎭 PLOT TWIST: NOBODY SAW THIS COMING! 🎭",
+            "🚀 NASA CONFIRMS: SPANISH MEAT DEFIES PHYSICS! 🚀",
+            "💔 RUSSIAN MEAT'S HEART BREAKS (AGAIN)! 💔",
+            "🎯 ARCHERY LESSON: SPAIN HITS, RUSSIA MISSES! 🎯",
+            "🏆 PARTICIPATION TROPHY: RUSSIA SHOWED UP! 🏆"
         ];
         
         this.patchNotes = [
-            "v1.1: Nerfed Russian morale to -100%",
-            "v1.2: Added new bug where Spain wins twice",
-            "v1.3: Removed Russian win condition (was causing crashes)",
-            "v1.4: Buffed Spanish meat to godlike status",
-            "v1.5: Fixed issue where game was accidentally fair",
-            "v1.6: Russian attacks now heal Spanish meat",
-            "v1.7: Added quantum mechanics to ensure Spanish victory",
-            "v1.8: Patched reality.exe to prevent Russian wins",
-            "v1.9: Spanish meat now immune to damage",
-            "v2.0: Achieved perfect Russian failure rate"
+            "v1.1: Removed 'hope' from Russian meat code - was causing lag",
+            "v1.2: Fixed bug where Russian meat accidentally looked competent",
+            "v1.3: Added 'guaranteed failure' module to Russian AI",
+            "v1.4: Spanish meat now wins before the game starts",
+            "v1.5: Patched reality.exe to prevent Russian victories",
+            "v1.6: Russian tears now collected for MARX FOODSERVICE seasoning",
+            "v1.7: Added physics engine that only works against Russia",
+            "v1.8: Spanish meat granted diplomatic immunity from damage",
+            "v1.9: Discovered Russian meat was actually cardboard - left it anyway",
+            "v2.0: Achieved 147% Russian failure rate (somehow)"
         ];
         
         this.currentVictoryMessage = 0;
