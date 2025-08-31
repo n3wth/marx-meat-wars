@@ -1124,14 +1124,40 @@ export class Game {
         this.ctx.strokeText(`RIGGED: ${riggingPercent}%`, this.canvas.width / 2, this.canvas.height - 100);
         this.ctx.fillText(`RIGGED: ${riggingPercent}%`, this.canvas.width / 2, this.canvas.height - 100);
         
-        // ABSURD victory probability that goes way beyond 100%
+        // QUANTUM PROBABILITY COLLAPSE - escalating absurd numbers
         const absurdProbability = Math.floor(80 + this.riggedFactor * 50 + this.spanishMorale * 2);
+        let probabilityText = '';
+        if (absurdProbability < 150) {
+            probabilityText = `SPAIN WIN PROB: ${absurdProbability}%`;
+        } else if (absurdProbability < 300) {
+            probabilityText = `SPAIN WIN PROB: ${absurdProbability}% (IMPOSSIBLE!)`;
+        } else if (absurdProbability < 500) {
+            probabilityText = `SPAIN WIN PROB: ${absurdProbability}% (REALITY BREAKING)`;
+        } else if (absurdProbability < 800) {
+            probabilityText = `SPAIN WIN PROB: ${absurdProbability}% (QUANTUM COLLAPSE)`;
+        } else {
+            probabilityText = `SPAIN WIN PROB: ∞% (MATH HAS GIVEN UP)`;
+        }
+        
         this.ctx.fillStyle = '#FFD700';
-        this.ctx.font = 'bold 24px "Press Start 2P"';
+        this.ctx.font = 'bold 20px "Press Start 2P"';
         this.ctx.strokeStyle = '#8B0000';
         this.ctx.lineWidth = 2;
-        this.ctx.strokeText(`SPAIN WIN PROB: ${absurdProbability}%`, this.canvas.width / 2, this.canvas.height - 50);
-        this.ctx.fillText(`SPAIN WIN PROB: ${absurdProbability}%`, this.canvas.width / 2, this.canvas.height - 50);
+        
+        // Add glitch effect when probability gets absurd
+        if (absurdProbability > 300) {
+            this.ctx.save();
+            this.ctx.translate((Math.random() - 0.5) * 4, (Math.random() - 0.5) * 4);
+            const hue = Math.random() * 360;
+            this.ctx.filter = `hue-rotate(${hue}deg)`;
+        }
+        
+        this.ctx.strokeText(probabilityText, this.canvas.width / 2, this.canvas.height - 50);
+        this.ctx.fillText(probabilityText, this.canvas.width / 2, this.canvas.height - 50);
+        
+        if (absurdProbability > 300) {
+            this.ctx.restore();
+        }
         
         // RIDICULOUS Russian failure probability
         const russianFailProb = Math.max(100, Math.floor(100 + this.defeatismLevel * 50 + (100 - this.russianMorale)));
