@@ -472,6 +472,11 @@
             easterEggClicks++;
             const logo = document.querySelector('.marx-logo');
             
+            // Track MARX clicks for achievements
+            if (window.__game && window.__game.achievements) {
+                window.__game.achievements.onMarxClick();
+            }
+            
             if (easterEggClicks === 1) {
                 logo.style.animation = 'marxGlow 0.2s ease-in-out infinite alternate, marxBounce 0.3s ease-in-out infinite, marxRotate 1s linear infinite';
                 setTimeout(() => {
@@ -528,6 +533,11 @@
                         window.__game.spanishMeat.activateRainbow();
                         window.__game.spanishMeat.activatePulsing();
                         window.__game.spanishMeat.addTextBubble('¡INCREÍBLE!', '#FFD700');
+                    }
+                    
+                    // Trigger easter egg achievement
+                    if (window.__game.achievements) {
+                        window.__game.achievements.onEasterEggActivated();
                     }
                 }
             }

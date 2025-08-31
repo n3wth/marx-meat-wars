@@ -1,5 +1,7 @@
 import { MeatFighter } from './MeatFighter.js';
 import { Sound } from './Sound.js';
+import { Commentary } from './Commentary.js';
+import { Achievements } from './Achievements.js';
 
 export function computeAttackAABB(attacker) {
     const attackX = attacker.x + (attacker.isRussian ? attacker.width : -35);
@@ -79,6 +81,17 @@ export class Game {
         // Initialize fighters with rigged stats
         this.russianMeat = new MeatFighter(120, 350, true, this.ctx);
         this.spanishMeat = new MeatFighter(700, 350, false, this.ctx);
+        
+        // Initialize commentary system
+        this.commentary = new Commentary();
+        this.currentCommentary = '';
+        this.commentaryDisplayTimer = 0;
+        
+        // Initialize achievement system
+        this.achievements = new Achievements();
+        this.gameStartTime = 0;
+        this.currentGameDamageDealt = 0;
+        this.currentGameDamageTaken = 0;
 
         // Rigged damage values (Russian always does less, takes more)
         this.baseRussianDamage = 8; // Pathetically low
@@ -253,6 +266,16 @@ export class Game {
         if (this.sound) {
             this.sound.playBackgroundMusic('battle_theme');
         }
+        
+        // Start commentary
+        this.commentary.reset();
+        this.commentary.addCommentary('game_start');
+        
+        // Start achievement tracking
+        this.gameStartTime = Date.now();
+        this.currentGameDamageDealt = 0;
+        this.currentGameDamageTaken = 0;
+        this.achievements.onGameStart();
     }
 
     restart() {
@@ -275,6 +298,12 @@ export class Game {
             // Add pathetic text bubbles
             const patheticTexts = ['WEAK!', 'PITIFUL!', 'NO EFFECT!', 'COMRADE NO!'];
             this.russianMeat.addTextBubble(patheticTexts[Math.floor(Math.random() * patheticTexts.length)], '#FF6666');
+            
+            // Commentary for Russian attack
+            this.commentary.addCommentary('russian_attack', {
+                riggingLevel: this.riggedFactor * 100,
+                morale: this.russianMorale
+            });
             
             // Decrease Russian morale with each attack
             this.russianMorale = Math.max(10, this.russianMorale - 2);
@@ -333,6 +362,10 @@ export class Game {
         this.russianMorale = Math.max(5, this.russianMorale - 0.1);
         this.spanishMorale = Math.min(150, this.spanishMorale + 0.05);
         
+        // Achievement tracking for morale and defeatism
+        this.achievements.onMoraleChange(this.russianMorale);
+        this.achievements.onDefeatismChange(this.defeatismLevel);
+        
         // Update MARX messages
         this.marxTimer++;
         if (this.marxTimer % 300 === 0) {
@@ -390,6 +423,7 @@ export class Game {
             const hitChance = Math.max(0.3, 0.8 - this.defeatismLevel); // Decreasing hit chance
             if (this.checkCollision(this.russianMeat, this.spanishMeat) && Math.random() < hitChance) {
                 this.spanishMeat.takeDamage(this.currentRussianDamage);
+                this.currentGameDamageDealt += this.currentRussianDamage;
                 
                 const quote = this.russianDefeatQuotes[Math.floor(Math.random() * this.russianDefeatQuotes.length)];
                 this.fightText = `WEAK HIT! "${quote}"`;
@@ -398,11 +432,20 @@ export class Game {
                 this.lightningEffect = 5;
                 this.sound && this.sound.play('russian_hit');
                 
+                // Achievement tracking
+                this.achievements.onRussianAttack(true);
+                
                 // Russian feels bad about hitting
                 this.russianMorale -= 1;
             } else {
                 this.fightText = "RUSSIAN MEAT MISSES PATHETICALLY!";
                 this.fightTextTimer = 45;
+                
+                // Commentary for Russian miss
+                this.commentary.addCommentary('russian_miss');
+                
+                // Achievement tracking
+                this.achievements.onRussianAttack(false);
             }
         }
         
@@ -413,6 +456,7 @@ export class Game {
                 // Apply rigged damage multiplier
                 const riggedDamage = Math.floor(this.currentSpanishDamage * this.riggedFactor);
                 this.russianMeat.takeDamage(riggedDamage);
+                this.currentGameDamageTaken += riggedDamage;
                 
                 const quote = this.spanishVictoryQuotes[Math.floor(Math.random() * this.spanishVictoryQuotes.length)];
                 this.fightText = `DEVASTATING HIT! "${quote}"`;
@@ -425,6 +469,16 @@ export class Game {
                 const epicTexts = ['¡OLEEEE!', '¡MAGNIFICO!', '¡PODER!', '¡VICTORIA!'];
                 this.spanishMeat.addTextBubble(epicTexts[Math.floor(Math.random() * epicTexts.length)], '#FFD700');
                 
+                // Commentary for Spanish attack and Russian getting hit
+                this.commentary.addCommentary('spanish_attack', {
+                    damage: riggedDamage,
+                    powerLevel: this.spanishMeat.crazyEffects.powerLevel
+                });
+                this.commentary.addCommentary('russian_hit', {
+                    damage: riggedDamage,
+                    russianHp: this.russianMeat.hp
+                });
+                
                 // Crazy Spanish effects
                 if (Math.random() < 0.4) {
                     this.spanishMeat.activateRainbow();
@@ -432,6 +486,9 @@ export class Game {
                 if (this.spanishMorale > 120) {
                     this.spanishMeat.activatePulsing();
                     this.spanishMeat.crazyEffects.powerLevel = Math.min(9001, this.spanishMeat.crazyEffects.powerLevel + 500);
+                    
+                    // Check power level achievement
+                    this.achievements.onSpanishPowerLevel(this.spanishMeat.crazyEffects.powerLevel);
                 }
                 
                 // Add explosion at hit location
@@ -468,11 +525,20 @@ export class Game {
             this._endRound();
         }
         
+        // Update commentary system
+        this.commentary.update();
+        const newCommentary = this.commentary.getCurrentCommentary();
+        if (newCommentary) {
+            this.currentCommentary = newCommentary;
+            this.commentaryDisplayTimer = 180; // 3 seconds
+        }
+        
         // Update timers
         if (this.fightTextTimer > 0) this.fightTextTimer--;
         if (this.comboTimer > 0) this.comboTimer--;
         if (this.screenShake > 0) this.screenShake--;
         if (this.lightningEffect > 0) this.lightningEffect--;
+        if (this.commentaryDisplayTimer > 0) this.commentaryDisplayTimer--;
         
         // Update UI
         if (this.uiRussianHP) this.uiRussianHP.textContent = this.russianMeat.hp;
@@ -498,6 +564,12 @@ export class Game {
             this.russianMeat.addTextBubble('NOOOOOO!', '#FF0000');
             this.russianMeat.addExplosion(this.russianMeat.x + this.russianMeat.width/2, 
                                         this.russianMeat.y + this.russianMeat.height/2, 2);
+            
+            // Commentary for round end
+            this.commentary.addCommentary('round_end', {
+                round: this.round,
+                riggingLevel: this.riggedFactor * 100
+            });
             
             this.round++;
             if (this.round > 3) {
@@ -549,6 +621,21 @@ export class Game {
         this.fightText = 'GAME OVER - RUSSIAN MEAT ALWAYS LOSES!';
         this.fightTextTimer = 150;
         this.sound && this.sound.play('defeat');
+        
+        // Commentary for game over
+        this.commentary.addCommentary('game_over', {
+            totalRounds: 3,
+            riggingLevel: this.riggedFactor * 100
+        });
+        
+        // Achievement tracking for game end
+        const gameTime = (Date.now() - this.gameStartTime) / 1000;
+        this.achievements.onGameEnd({
+            gameTime: gameTime,
+            damageTaken: this.currentGameDamageTaken,
+            damageDealt: this.currentGameDamageDealt,
+            rounds: 3
+        });
         
         setTimeout(() => this._showAd(), 4000);
     }
@@ -607,6 +694,8 @@ export class Game {
         this._drawRoundInfo();
         this._drawHealthBars();
         this._drawRiggingIndicators();
+        this._drawCommentary();
+        this._drawAchievements();
         
         if (this.screenShake > 0) {
             this.ctx.restore();
@@ -846,6 +935,134 @@ export class Game {
         this.ctx.fillText('MARX PREDICTION: SPAIN WINS', this.canvas.width - 20, this.canvas.height - 40);
         this.ctx.fillText(`SPANISH VICTORY PROBABILITY: ${Math.min(99, Math.floor(80 + this.riggedFactor * 15))}%`, 
                          this.canvas.width - 20, this.canvas.height - 25);
+    }
+
+    _drawCommentary() {
+        if (this.currentCommentary && this.commentaryDisplayTimer > 0) {
+            // Commentary box background
+            const commentaryY = 160;
+            const commentaryHeight = 60;
+            const padding = 15;
+            
+            // Background with MARX FOODSERVICE styling
+            this.ctx.fillStyle = 'rgba(255, 215, 0, 0.95)';
+            this.ctx.fillRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
+            
+            // Border
+            this.ctx.strokeStyle = '#8B0000';
+            this.ctx.lineWidth = 3;
+            this.ctx.strokeRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
+            
+            // Commentary text
+            this.ctx.fillStyle = '#8B0000';
+            this.ctx.font = 'bold 12px "Press Start 2P"';
+            this.ctx.textAlign = 'left';
+            
+            // Word wrap the commentary
+            const maxWidth = this.canvas.width - (padding * 4);
+            const words = this.currentCommentary.split(' ');
+            let line = '';
+            let y = commentaryY + 25;
+            
+            for (let i = 0; i < words.length; i++) {
+                const testLine = line + words[i] + ' ';
+                const metrics = this.ctx.measureText(testLine);
+                const testWidth = metrics.width;
+                
+                if (testWidth > maxWidth && i > 0) {
+                    this.ctx.fillText(line, padding * 2, y);
+                    line = words[i] + ' ';
+                    y += 16;
+                } else {
+                    line = testLine;
+                }
+            }
+            this.ctx.fillText(line, padding * 2, y);
+            
+            // Commentary fade effect
+            if (this.commentaryDisplayTimer < 30) {
+                this.ctx.fillStyle = `rgba(255, 215, 0, ${this.commentaryDisplayTimer / 30})`;
+                this.ctx.fillRect(padding, commentaryY, this.canvas.width - (padding * 2), commentaryHeight);
+            }
+            
+            // Microphone icon
+            this.ctx.fillStyle = '#8B0000';
+            this.ctx.font = '16px Arial';
+            this.ctx.fillText('🎙️', this.canvas.width - 50, commentaryY + 20);
+            
+            // "LIVE" indicator
+            this.ctx.fillStyle = '#DC143C';
+            this.ctx.font = 'bold 10px "Press Start 2P"';
+            this.ctx.textAlign = 'right';
+            this.ctx.fillText('LIVE', this.canvas.width - 25, commentaryY + 35);
+        }
+    }
+
+    _drawAchievements() {
+        // Show recent achievement unlocks
+        const recentUnlocks = this.achievements.getRecentUnlocks();
+        if (recentUnlocks.length > 0) {
+            recentUnlocks.forEach((achievement, index) => {
+                const y = 100 + (index * 70);
+                const timeSinceUnlock = Date.now() - achievement.timestamp;
+                const fadeTime = 5000; // 5 seconds
+                
+                if (timeSinceUnlock < fadeTime) {
+                    const alpha = Math.max(0, 1 - (timeSinceUnlock / fadeTime));
+                    
+                    // Achievement notification background
+                    this.ctx.fillStyle = `rgba(255, 215, 0, ${alpha * 0.95})`;
+                    this.ctx.fillRect(this.canvas.width - 320, y, 300, 60);
+                    
+                    // Border
+                    this.ctx.strokeStyle = `rgba(139, 0, 0, ${alpha})`;
+                    this.ctx.lineWidth = 3;
+                    this.ctx.strokeRect(this.canvas.width - 320, y, 300, 60);
+                    
+                    // Achievement icon
+                    this.ctx.fillStyle = `rgba(139, 0, 0, ${alpha})`;
+                    this.ctx.font = '24px Arial';
+                    this.ctx.textAlign = 'left';
+                    this.ctx.fillText(achievement.icon, this.canvas.width - 310, y + 30);
+                    
+                    // Achievement text
+                    this.ctx.font = 'bold 10px "Press Start 2P"';
+                    this.ctx.fillText('ACHIEVEMENT UNLOCKED!', this.canvas.width - 280, y + 15);
+                    this.ctx.fillText(achievement.name, this.canvas.width - 280, y + 30);
+                    
+                    // MARX quote
+                    this.ctx.font = '8px "Press Start 2P"';
+                    this.ctx.fillText(achievement.marxQuote, this.canvas.width - 280, y + 45);
+                    
+                    // Rarity indicator
+                    const rarityColors = {
+                        'common': '#CCCCCC',
+                        'uncommon': '#00FF00', 
+                        'rare': '#0080FF',
+                        'legendary': '#FF8000',
+                        'mythical': '#FF00FF'
+                    };
+                    this.ctx.fillStyle = `${rarityColors[achievement.rarity] || '#CCCCCC'}`;
+                    this.ctx.fillRect(this.canvas.width - 320, y, 5, 60);
+                }
+            });
+        }
+        
+        // Show achievement progress summary in corner
+        const progress = this.achievements.getProgressSummary();
+        this.ctx.fillStyle = 'rgba(255, 215, 0, 0.8)';
+        this.ctx.fillRect(this.canvas.width - 200, 20, 180, 50);
+        
+        this.ctx.strokeStyle = '#8B0000';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(this.canvas.width - 200, 20, 180, 50);
+        
+        this.ctx.fillStyle = '#8B0000';
+        this.ctx.font = 'bold 10px "Press Start 2P"';
+        this.ctx.textAlign = 'left';
+        this.ctx.fillText(`ACHIEVEMENTS: ${progress.unlocked}/${progress.total}`, this.canvas.width - 195, 35);
+        this.ctx.fillText(`FAILURE SCORE: ${progress.score}`, this.canvas.width - 195, 50);
+        this.ctx.fillText(`COMPLETION: ${progress.percentage}%`, this.canvas.width - 195, 65);
     }
 
     gameLoop() {

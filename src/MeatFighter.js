@@ -716,6 +716,11 @@ export class MeatFighter {
                 vy: 2 + Math.random() * 2,
                 life: 60
             });
+            
+            // Notify game about tear for achievement tracking
+            if (window.__game && window.__game.achievements) {
+                window.__game.achievements.onTearDropped();
+            }
         }
     }
 
