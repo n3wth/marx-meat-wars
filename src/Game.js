@@ -39,6 +39,8 @@ export class Game {
         this.marxTimer = 0;
         this.marxBackgroundOffset = 0;
         this.floatingLogos = this.generateFloatingLogos();
+        this.fakeSponsorLogos = this.generateFakeSponsorLogos();
+        this.propagandaPosters = this.generatePropagandaPosters();
         this.marxMessages = [
             "MARX FOODSERVICE RECOMMENDS SPANISH MEAT!",
             "RUSSIAN MEAT: STATISTICALLY INFERIOR!",
@@ -95,6 +97,36 @@ export class Game {
         this.currentGameDamageDealt = 0;
         this.currentGameDamageTaken = 0;
         
+        // Rotating content system
+        this.victoryMessages = [
+            "SPANISH MEAT WINS AGAIN!",
+            "SPAIN WINS BY DIVINE RIGHT!",
+            "SPAIN WINS BEFORE THE MATCH BEGAN!",
+            "SPANISH VICTORY: INEVITABLE AS GRAVITY!",
+            "SPAIN WINS THROUGH SUPERIOR GENETICS!",
+            "SPANISH MEAT: BORN TO DOMINATE!",
+            "SPAIN WINS VIA MEDITERRANEAN MAGIC!",
+            "SPANISH SUPERIORITY: SCIENTIFICALLY PROVEN!",
+            "SPAIN WINS BECAUSE RUSSIA CAN'T!",
+            "SPANISH VICTORY: WRITTEN IN THE STARS!"
+        ];
+        
+        this.patchNotes = [
+            "v1.1: Nerfed Russian morale to -100%",
+            "v1.2: Added new bug where Spain wins twice",
+            "v1.3: Removed Russian win condition (was causing crashes)",
+            "v1.4: Buffed Spanish meat to godlike status",
+            "v1.5: Fixed issue where game was accidentally fair",
+            "v1.6: Russian attacks now heal Spanish meat",
+            "v1.7: Added quantum mechanics to ensure Spanish victory",
+            "v1.8: Patched reality.exe to prevent Russian wins",
+            "v1.9: Spanish meat now immune to damage",
+            "v2.0: Achieved perfect Russian failure rate"
+        ];
+        
+        this.currentVictoryMessage = 0;
+        this.currentPatchNote = 0;
+        
         // Initialize marketplace system
         this.marketplace = new Marketplace();
         this.reversedControls = false;
@@ -141,6 +173,27 @@ export class Game {
             });
         }
         return logos;
+    }
+
+    generateFakeSponsorLogos() {
+        const sponsors = [
+            { name: 'HAMAZON PRIME', x: Math.random() * this.canvas.width, y: Math.random() * 100 + 50 },
+            { name: 'SOVIET SALT CONSORTIUM', x: Math.random() * this.canvas.width, y: Math.random() * 100 + 50 },
+            { name: 'IBERIAN PRIDE ASSOCIATION', x: Math.random() * this.canvas.width, y: Math.random() * 100 + 50 },
+            { name: 'COMMUNIST CUTS CO.', x: Math.random() * this.canvas.width, y: Math.random() * 100 + 50 },
+            { name: 'MATADOR MEATS LLC', x: Math.random() * this.canvas.width, y: Math.random() * 100 + 50 }
+        ];
+        return sponsors;
+    }
+
+    generatePropagandaPosters() {
+        const posters = [
+            { text: 'SPANISH MEAT\nYOUR COMRADE!', x: 100, y: 200, style: 'communist' },
+            { text: 'DEFEAT\nRUSSIAN MEAT!', x: this.canvas.width - 200, y: 250, style: 'spanish' },
+            { text: 'MARX FOODSERVICE\nQUALITY!', x: this.canvas.width/2, y: 180, style: 'corporate' },
+            { text: 'RIGGING:\nFOR YOUR SAFETY!', x: 150, y: this.canvas.height - 300, style: 'warning' }
+        ];
+        return posters;
     }
 
     setupMarketplace() {
@@ -849,6 +902,9 @@ export class Game {
             this.sound.playMarxAudio(); // "MARX FOODSERVICE!" shout for the victory celebration
         }
         
+        // Update victory screen with rotating content
+        this.updateVictoryScreen();
+        
         // Start epic confetti rain
         setTimeout(() => {
             if (window.startConfettiRain) {
@@ -875,6 +931,8 @@ export class Game {
         this._drawBackground();
         this._drawBackgroundParticles();
         this._drawAmbientParticles();
+        this._drawPropagandaPosters();
+        this._drawFakeSponsors();
         
         if (this.lightningEffect > 0) {
             this._drawLightningEffect();
@@ -1004,6 +1062,55 @@ export class Game {
             this.ctx.lineTo(this.canvas.width, y);
             this.ctx.stroke();
         }
+        
+        this.ctx.restore();
+    }
+
+    _drawPropagandaPosters() {
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.15;
+        
+        this.propagandaPosters.forEach(poster => {
+            this.ctx.fillStyle = poster.style === 'communist' ? '#DC143C' : 
+                               poster.style === 'spanish' ? '#FFD700' :
+                               poster.style === 'corporate' ? '#8B0000' : '#FF6B6B';
+            
+            this.ctx.font = 'bold 12px "Press Start 2P"';
+            this.ctx.textAlign = 'center';
+            
+            const lines = poster.text.split('\n');
+            lines.forEach((line, index) => {
+                this.ctx.fillText(line, poster.x, poster.y + (index * 16));
+            });
+            
+            // Add propaganda frame
+            this.ctx.strokeStyle = poster.style === 'communist' ? '#8B0000' : '#FFD700';
+            this.ctx.lineWidth = 2;
+            this.ctx.strokeRect(poster.x - 60, poster.y - 20, 120, 50);
+        });
+        
+        this.ctx.restore();
+    }
+
+    _drawFakeSponsors() {
+        this.ctx.save();
+        this.ctx.globalAlpha = 0.2;
+        this.ctx.fillStyle = '#8B0000';
+        this.ctx.font = 'bold 8px "Press Start 2P"';
+        this.ctx.textAlign = 'center';
+        
+        this.fakeSponsorLogos.forEach(sponsor => {
+            // Move sponsors slowly
+            sponsor.x += Math.sin(this.marxTimer * 0.01) * 0.5;
+            sponsor.y += Math.cos(this.marxTimer * 0.015) * 0.3;
+            
+            this.ctx.fillText(sponsor.name, sponsor.x, sponsor.y);
+            
+            // Add sponsor box
+            this.ctx.strokeStyle = '#FFD700';
+            this.ctx.lineWidth = 1;
+            this.ctx.strokeRect(sponsor.x - 50, sponsor.y - 10, 100, 20);
+        });
         
         this.ctx.restore();
     }
@@ -1263,6 +1370,38 @@ export class Game {
         if (Math.random() < 0.4) {
             this.russianMeat.addParticle(this.russianMeat.x + this.russianMeat.width/2, 
                                        this.russianMeat.y + this.russianMeat.height/2, '#FFFFFF');
+        }
+    }
+
+    updateVictoryScreen() {
+        // Rotate victory message
+        const victoryMsg = this.victoryMessages[this.currentVictoryMessage];
+        this.currentVictoryMessage = (this.currentVictoryMessage + 1) % this.victoryMessages.length;
+        
+        // Rotate patch note
+        const patchNote = this.patchNotes[this.currentPatchNote];
+        this.currentPatchNote = (this.currentPatchNote + 1) % this.patchNotes.length;
+        
+        // Update HTML content
+        const adScreen = document.getElementById('adScreen');
+        if (adScreen) {
+            const h2 = adScreen.querySelector('h2');
+            const firstP = adScreen.querySelector('p');
+            const patchP = adScreen.querySelector('.patch-note');
+            
+            if (h2) h2.textContent = `🏭 ${victoryMsg} 🏭`;
+            if (firstP) firstP.textContent = victoryMsg.toUpperCase();
+            
+            // Add or update patch note
+            if (!patchP) {
+                const patchElement = document.createElement('p');
+                patchElement.className = 'patch-note';
+                patchElement.style.cssText = 'font-size: 8px; color: #666; font-style: italic; margin-top: 10px;';
+                patchElement.textContent = `PATCH NOTES: ${patchNote}`;
+                adScreen.insertBefore(patchElement, adScreen.lastElementChild);
+            } else {
+                patchP.textContent = `PATCH NOTES: ${patchNote}`;
+            }
         }
     }
 

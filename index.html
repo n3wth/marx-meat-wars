@@ -867,20 +867,28 @@
             }
         `;
         
-        // CONFETTI RAIN SYSTEM
+        // EPIC MEAT CONFETTI RAIN SYSTEM
         function createConfetti() {
-            const confettiSymbols = [
-                '🥩', '💄', '👁️', '💋', '🏭', // Meat, eyelashes, MARX
-                '🇪🇸', '🇷🇺', '⚔️', '💰', '🏆', // Flags, battle, coins, achievements
-                '✨', '🌟', '💎', '👑', '🎉', // Sparkles and celebration
-                'M', 'A', 'R', 'X', // MARX letters
-                '☭', '🌹', '🔥', '💃', '🎭', // Cultural symbols
-                '🦵', '👠', '💅', '😭', '🤡' // Cosmetic items and emotions
+            const meatConfetti = [
+                // Primary meat types
+                '🥩', '🍖', '🥓', '🌭', '🍗', '🥪', 
+                // Spanish victory symbols
+                '🇪🇸', '🌹', '💃', '🎭', '👑', '🏆',
+                // Russian defeat symbols  
+                '🇷🇺', '☭', '😭', '💔', '⚰️', '🏳️',
+                // MARX corporate symbols
+                '🏭', '💰', '📈', '💼', '🎯', '✅',
+                // Cosmetic items
+                '💄', '👁️', '💋', '🦵', '👠', '💅',
+                // Celebration effects
+                '✨', '🌟', '💎', '🎉', '🎊', '🔥',
+                // MARX letters (extra weight)
+                'M', 'A', 'R', 'X', 'M', 'A', 'R', 'X'
             ];
             
             const confetti = document.createElement('div');
             confetti.className = 'confetti';
-            confetti.textContent = confettiSymbols[Math.floor(Math.random() * confettiSymbols.length)];
+            confetti.textContent = meatConfetti[Math.floor(Math.random() * meatConfetti.length)];
             
             // Random positioning and timing
             confetti.style.left = Math.random() * 100 + 'vw';
